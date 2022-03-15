@@ -1,5 +1,5 @@
 // React
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 
 // // Components
 // import EditExerciseDialog from '../components/MyExercises/EditExerciseDialog';
@@ -7,18 +7,7 @@ import { useState, useContext, useEffect } from "react";
 // import ConfirmationDialog from '../components/global/ConfirmationDialog';
 
 // Material
-import {
-	IconButton,
-	Typography,
-	Stack,
-	Accordion,
-	AccordionSummary,
-	AccordionDetails,
-	Paper,
-	List,
-	ListItem,
-	ListItemText
-} from "@mui/material";
+import { IconButton, Typography, Stack, ListItemText, Paper, List, ListItem } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 

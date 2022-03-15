@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useStyles } from "../styles/classes";
-// import { useAppSelector } from "../../app/hooks";
+
 import TemplateStart from "../components/LogWorkout/TemplateStart";
 import { useWindowSize } from "../hooks";
 import UserContext from "../contexts/userContext";
@@ -13,8 +13,6 @@ function LogWorkoutPage() {
 	const classes = useStyles();
 	const [width] = useWindowSize();
 	const navigate = useNavigate();
-	// const user = useAppSelector((state) => state.user)!;
-	// const theme = useAppSelector((state) => state.theme);
 	const [user] = useContext(UserContext) as UserStateType;
 	const [theme] = useContext(ThemeContext) as ThemeStateType;
 

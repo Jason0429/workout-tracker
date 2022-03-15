@@ -26,7 +26,6 @@ export default class FirebaseObject {
 				email: docData.email,
 				photoURL: docData.photoURL,
 				workouts: docData.workouts,
-				// workouts: [Workout("", [], 1641757009312)],
 				exercises: docData.exercises,
 				templates: docData.templates
 			};

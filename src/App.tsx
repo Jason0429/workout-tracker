@@ -123,7 +123,7 @@ export default function App() {
 		<ThemeContext.Provider value={[theme, setTheme]}>
 			<UserContext.Provider value={[user, setUser]}>
 				<SnackbarContext.Provider value={[snackbar, setSnackbar]}>
-					<BrowserRouter basename='workout-tracker'>
+					<BrowserRouter basename={process.env.PUBLIC_URL + "/"}>
 						<div
 							className={classes.mainContainer}
 							style={{
@@ -135,98 +135,106 @@ export default function App() {
 							<Routes>
 								{/* Create Template Page */}
 								<Route
-									path='/createTemplate'
+									path={"/createTemplate"}
 									element={
 										user ? (
 											<TemplatePage mode='create-template' />
 										) : (
-											<Navigate to='/signin' />
+											<Navigate to={"/signin"} />
 										)
 									}
 								/>
 
 								{/* Edit Template Page */}
 								<Route
-									path='/editTemplate/:id'
+									path={"/editTemplate/:id"}
 									element={
 										user ? (
 											<TemplatePage mode='edit-template' />
 										) : (
-											<Navigate to='/signin' />
+											<Navigate to={"/signin"} />
 										)
 									}
 								/>
 
 								{/* Create Workout to Log */}
 								<Route
-									path='/createWorkout'
+									path={"/createWorkout"}
 									element={
 										user ? (
 											<TemplatePage mode='create-workout' />
 										) : (
-											<Navigate to='/signin' />
+											<Navigate to={"/signin"} />
 										)
 									}
 								/>
 
 								{/* Edit Logged Workout */}
 								<Route
-									path='/editWorkout/:id'
+									path={"/editWorkout/:id"}
 									element={
 										user ? (
 											<TemplatePage mode='edit-workout' />
 										) : (
-											<Navigate to='/signin' />
+											<Navigate to={"/signin"} />
 										)
 									}
 								/>
 
 								{/* Log Workout */}
 								<Route
-									path='/logWorkout/:id'
+									path={"/logWorkout/:id"}
 									element={
 										user ? (
 											<TemplatePage mode='log-workout' />
 										) : (
-											<Navigate to='/signin' />
+											<Navigate to={"/signin"} />
 										)
 									}
 								/>
 
 								{/* View Progress Page*/}
 								<Route
-									path='/progress'
-									element={user ? <ProgressPage /> : <Navigate to='/signin' />}
+									path={"/progress"}
+									element={user ? <ProgressPage /> : <Navigate to={"/signin"} />}
 								/>
 
 								{/* My Exercises Page */}
 								<Route
-									path='/exercises'
-									element={user ? <MyExercisesPage /> : <Navigate to='/signin' />}
+									path={"/exercises"}
+									element={
+										user ? <MyExercisesPage /> : <Navigate to={"/signin"} />
+									}
 								/>
 
 								{/* Log Workout Page*/}
 								<Route
-									path='/log'
-									element={user ? <LogWorkoutPage /> : <Navigate to='/signin' />}
+									path={"/log"}
+									element={
+										user ? <LogWorkoutPage /> : <Navigate to={"/signin"} />
+									}
 								/>
 
 								{/* Home page, redirects to SignInPage */}
 								<Route
-									path='/home'
-									element={user ? <HomePage /> : <Navigate to='/signin' />}
+									path={"/home"}
+									element={user ? <HomePage /> : <Navigate to={"/signin"} />}
 								/>
 
 								{/* If user's logged in, redirect to HomePage, else sign in */}
 								<Route
-									path='/signin'
-									element={user ? <Navigate to='/home' /> : <SignInPage />}
+									path={"/signin"}
+									element={user ? <Navigate to={"/home"} /> : <SignInPage />}
 								/>
 								{/* Any other path */}
 								<Route
 									path='/*'
 									element={
-										user ? <Navigate to='/home' /> : <Navigate to='/signin' />
+										user ? (
+											<Navigate to={"/home"} />
+										) : (
+											<Navigate to={"/signin"} />
+										)
 									}
 								/>
 							</Routes>
