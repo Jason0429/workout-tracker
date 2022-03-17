@@ -22,9 +22,6 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-// Styles
-// import { Nav, Logo } from "./Navbar.styles";
-
 // Redux
 // import { useAppSelector, useAppDispatch } from "../../app/hooks";
 // import { toggleTheme } from "../../app/features/theme/themeSlice";

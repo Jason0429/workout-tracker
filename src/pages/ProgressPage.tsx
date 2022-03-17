@@ -193,7 +193,8 @@ function ProgressPage() {
 									}
 								>
 									<ListItemButton
-										onClick={() => navigate(`/editWorkout/${workout.id}`)}
+										onClick={() => navigate(`/viewWorkout/${workout.id}`)}
+										// onClick={() => navigate(`/editWorkout/${workout.id}`)}
 									>
 										<ListItemText primary={workout.name} />
 									</ListItemButton>

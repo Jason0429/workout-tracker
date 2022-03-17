@@ -31,6 +31,7 @@ import { themes } from "./styles/theme";
 import SnackbarContext from "./contexts/snackbarContext";
 
 import { SnackbarType, ThemeType, UserType } from "./models";
+import ViewWorkoutPage from "./pages/ViewWorkoutPage";
 
 export default function App() {
 	const [user, setUser] = useState(null as UserType | null);
@@ -123,7 +124,7 @@ export default function App() {
 		<ThemeContext.Provider value={[theme, setTheme]}>
 			<UserContext.Provider value={[user, setUser]}>
 				<SnackbarContext.Provider value={[snackbar, setSnackbar]}>
-					<BrowserRouter basename={process.env.PUBLIC_URL + "/"}>
+					<BrowserRouter basename='/'>
 						<div
 							className={classes.mainContainer}
 							style={{
@@ -133,6 +134,13 @@ export default function App() {
 						>
 							<Navbar />
 							<Routes>
+								{/* View Workout Page (Uneditable) */}
+								<Route
+									path={"/viewWorkout/:id"}
+									element={
+										user ? <ViewWorkoutPage /> : <Navigate to={"/signin"} />
+									}
+								/>
 								{/* Create Template Page */}
 								<Route
 									path={"/createTemplate"}

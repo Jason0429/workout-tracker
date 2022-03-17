@@ -34,10 +34,10 @@ interface Props {
 function TemplatePage({ mode }: Props) {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const classes = useStyles();
 	const [user] = useContext(UserContext) as UserStateType;
 	const [theme] = useContext(ThemeContext) as ThemeStateType;
 	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
-	const classes = useStyles();
 	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const firebaseObj = new FirebaseObject();
 	const [template, setTemplate] = useState<TemplateWorkoutType>(getTemplateOrWorkout());

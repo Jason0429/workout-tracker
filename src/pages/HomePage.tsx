@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import styled from "@mui/styled-engine";
 import { Stack } from "@mui/material";
-// import { useAppSelector } from "../../app/hooks";
 import { NavLink } from "react-router-dom";
 import ThemeContext from "../contexts/themeContext";
 import { ThemeStateType } from "../models";

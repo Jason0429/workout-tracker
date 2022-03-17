@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { getEnabledCategories } from "trace_events";
 import { v4 as uuidv4 } from "uuid";
 
 export type TemplateWorkoutType = TemplateType | WorkoutType;
