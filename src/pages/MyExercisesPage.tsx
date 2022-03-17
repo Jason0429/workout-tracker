@@ -173,7 +173,7 @@ function MyExercisesPage() {
 			<Stack
 				direction='column'
 				sx={{
-					margin: "100px 0 200px 0",
+					margin: "20px 0 100px 0",
 					width: "95%",
 					maxWidth: "600px"
 				}}
@@ -181,7 +181,9 @@ function MyExercisesPage() {
 				<Paper
 					variant='outlined'
 					sx={{
-						width: "100%"
+						width: "100%",
+						background: theme.paperBackground,
+						transition: theme.transition
 					}}
 				>
 					<Paper
@@ -189,18 +191,28 @@ function MyExercisesPage() {
 							padding: "10px",
 							display: "flex",
 							alignItems: "center",
-							justifyContent: "center"
+							justifyContent: "center",
+							background: theme.paperBackground,
+							transition: theme.transition
 						}}
 					>
-						<Typography variant='h6'>My Exercises</Typography>
+						<Typography
+							variant='h6'
+							sx={{
+								transition: theme.transition,
+								color: theme.text
+							}}
+						>
+							My Exercises
+						</Typography>
 					</Paper>
 
 					<Paper
-						elevation={0}
+						variant='outlined'
 						sx={{
 							padding: "15px",
-							borderTop: "1px solid lightgray",
-							borderBottom: "1px solid lightgray"
+							background: theme.background,
+							transition: theme.transition
 						}}
 					>
 						<input
@@ -210,7 +222,8 @@ function MyExercisesPage() {
 							onChange={(e) => setSearchedExercise(e.target.value)}
 							style={{
 								background: theme.paperBackground,
-								transition: theme.transition
+								transition: theme.transition,
+								color: theme.text
 							}}
 						/>
 					</Paper>
@@ -230,6 +243,10 @@ function MyExercisesPage() {
 							.map((exercise: ExerciseType, idx: number) => (
 								<ListItem
 									divider
+									sx={{
+										background: theme.paperBackground,
+										transition: theme.transition
+									}}
 									key={idx}
 									secondaryAction={
 										<Stack direction='row' alignItems='center' spacing={1}>
@@ -241,7 +258,12 @@ function MyExercisesPage() {
 													handleOpenEditExerciseDialog(exercise)
 												}
 											>
-												<EditIcon />
+												<EditIcon
+													sx={{
+														transition: theme.transition,
+														color: theme.text
+													}}
+												/>
 											</IconButton>
 											<IconButton
 												edge='end'
@@ -251,12 +273,23 @@ function MyExercisesPage() {
 													handleDeleteExerciseBeforeConfirmation(exercise)
 												}
 											>
-												<DeleteIcon />
+												<DeleteIcon
+													sx={{
+														transition: theme.transition,
+														color: theme.text
+													}}
+												/>
 											</IconButton>
 										</Stack>
 									}
 								>
-									<ListItemText primary={exercise?.name} />
+									<ListItemText
+										primary={exercise?.name}
+										sx={{
+											transition: theme.transition,
+											color: theme.text
+										}}
+									/>
 								</ListItem>
 							))}
 					</List>
@@ -270,8 +303,9 @@ function MyExercisesPage() {
 					padding: "20px",
 					position: "fixed",
 					bottom: 0,
-					background: "#ffffff",
-					width: "100%"
+					width: "100%",
+					background: theme.background,
+					transition: theme.transition
 				}}
 			>
 				<Stack direction='column' alignItems='center' justifyContent='center'>

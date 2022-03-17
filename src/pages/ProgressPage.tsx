@@ -23,14 +23,16 @@ import ListItemButton from "@mui/material/ListItemButton";
 
 // Hooks
 import { useWindowSize } from "../hooks";
-import { SnackbarStateType, UserStateType, UserType, WorkoutType } from "../models";
+import { SnackbarStateType, UserStateType, UserType, WorkoutType, ThemeStateType } from "../models";
 import UserContext from "../contexts/userContext";
+import ThemeContext from "../contexts/themeContext";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
 import FirebaseObject from "../firebase/firebase";
 import SnackbarContext from "../contexts/snackbarContext";
 
 function ProgressPage() {
 	const [user] = useContext(UserContext) as UserStateType;
+	const [theme] = useContext(ThemeContext) as ThemeStateType;
 	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
 	const [width] = useWindowSize();
 	const navigate = useNavigate();
@@ -145,8 +147,8 @@ function ProgressPage() {
 					variant='outlined'
 					sx={{
 						height: "fit-content",
-						paddingBottom: "20px",
-						width: "350px"
+						width: "350px",
+						background: theme.paperBackground
 					}}
 				>
 					<LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -162,7 +164,15 @@ function ProgressPage() {
 					</LocalizationProvider>
 				</Paper>
 				{/* Workouts on this day list */}
-				<Paper variant='outlined' sx={{ height: "fit-content", width: "350px" }}>
+				<Paper
+					variant='outlined'
+					sx={{
+						height: "fit-content",
+						width: "350px",
+						background: theme.paperBackground,
+						transition: theme.transition
+					}}
+				>
 					<Typography
 						align='center'
 						p={1}
@@ -188,7 +198,12 @@ function ProgressPage() {
 												handleDeleteWorkoutBeforeConfirmation(workout)
 											}
 										>
-											<DeleteIcon />
+											<DeleteIcon
+												sx={{
+													transition: theme.transition,
+													color: theme.text
+												}}
+											/>
 										</IconButton>
 									}
 								>
@@ -196,7 +211,13 @@ function ProgressPage() {
 										onClick={() => navigate(`/viewWorkout/${workout.id}`)}
 										// onClick={() => navigate(`/editWorkout/${workout.id}`)}
 									>
-										<ListItemText primary={workout.name} />
+										<ListItemText
+											primary={workout.name}
+											sx={{
+												transition: theme.transition,
+												color: theme.text
+											}}
+										/>
 									</ListItemButton>
 								</ListItem>
 							)

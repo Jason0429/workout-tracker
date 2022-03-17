@@ -23,7 +23,14 @@ export type SnackbarType = {
 };
 
 export type ThemeType = {
-	[index: string]: any;
+	// [index: string]: string;
+	mode: string;
+	background: string;
+	paperBackground: string;
+	paperBackgroundHover: string;
+	text: string;
+	detailText: string;
+	transition: string;
 };
 
 export type ThemesType = {

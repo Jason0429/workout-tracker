@@ -1,16 +1,17 @@
-import { Stack, Typography, IconButton, Box, Paper, Divider, Tooltip } from "@mui/material";
+import { Stack, Typography, IconButton, Paper, Divider, Tooltip } from "@mui/material";
 import { useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import UserContext from "../contexts/userContext";
-import { useWindowSize } from "../hooks";
+import ThemeContext from "../contexts/themeContext";
 import EditIcon from "@mui/icons-material/Edit";
-import { ExerciseType, UserStateType, WorkoutType } from "../models";
+import { ExerciseType, ThemeStateType, UserStateType, WorkoutType } from "../models";
 import Spacer from "../components/Global/Spacer";
 
 function ViewWorkoutPage() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [user] = useContext(UserContext) as UserStateType;
+	const [theme] = useContext(ThemeContext) as ThemeStateType;
 	const workout = getWorkout();
 
 	function getWorkout(): WorkoutType | undefined {
@@ -52,7 +53,15 @@ function ViewWorkoutPage() {
 					}}
 				>
 					{/* Workout Name */}
-					<Typography variant='h6'>{workout?.name}</Typography>
+					<Typography
+						variant='h6'
+						sx={{
+							transition: theme.transition,
+							color: theme.text
+						}}
+					>
+						{workout?.name}
+					</Typography>
 					{/* Edit Option */}
 					<Tooltip title='Edit workout'>
 						<IconButton
@@ -61,7 +70,7 @@ function ViewWorkoutPage() {
 							size='small'
 							onClick={() => navigate(`/editWorkout/${id}`)}
 						>
-							<EditIcon />
+							<EditIcon sx={{ transition: theme.transition, color: theme.text }} />
 						</IconButton>
 					</Tooltip>
 				</Stack>
@@ -75,17 +84,29 @@ function ViewWorkoutPage() {
 							width: "100%",
 							margin: "5px 0",
 							padding: "10px",
-							boxSizing: "border-box"
+							boxSizing: "border-box",
+							background: theme.paperBackground,
+							transition: theme.transition
 						}}
 					>
-						<Typography variant='body1'>{e?.name}</Typography>
+						<Typography
+							variant='body1'
+							sx={{
+								transition: theme.transition,
+								color: theme.text
+							}}
+						>
+							{e?.name}
+						</Typography>
 						<Divider />
 						<Spacer width='100%' height='10px' />
 						<Stack
 							direction='row'
 							sx={{
 								justifyContent: "space-between",
-								alignItems: "center"
+								alignItems: "center",
+								transition: theme.transition,
+								color: theme.text
 							}}
 						>
 							<Stack
@@ -133,12 +154,15 @@ function ViewWorkoutPage() {
 								</Typography>
 							</Stack>
 						</Stack>
+						<Divider />
 						{e?.sets.map((s, idx) => (
 							<Stack
 								direction='row'
 								sx={{
 									justifyContent: "space-between",
-									alignItems: "center"
+									alignItems: "center",
+									transition: theme.transition,
+									color: theme.text
 								}}
 							>
 								<Stack

@@ -108,10 +108,7 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 			open={open}
 			fullWidth={true}
 			sx={{
-				background: theme.background,
-				backdropFilter: "none !important",
-				filter: "none !important",
-				height: "90vh !important"
+				background: theme.background
 			}}
 		>
 			<Stack
@@ -198,7 +195,9 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 				sx={{
 					background: theme.background,
 					transition: theme.transition,
-					height: "90vh !important"
+					height: "fit-content"
+					// minHeight: "90vh"
+					// overflowY: "scroll"
 				}}
 			>
 				{user?.exercises
