@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Stack, Typography, IconButton, Tooltip } from "@mui/material";
 import { useStyles } from "../styles/classes";
@@ -9,23 +9,19 @@ import {
 	WorkoutType,
 	ExerciseType,
 	SetType,
-	TemplateWorkoutType,
-	UserStateType,
-	ThemeStateType,
-	SnackbarStateType,
-	UserType
+	TemplateWorkoutType
 } from "../models";
-// import { useAppSelector, useAppDispatch } from "../../app/hooks";
-// import { exercises } from "../data/exercises";
 import ExercisesDialog from "../components/Template/ExercisesDialog";
 import ExerciseTemplate from "../components/Template/ExerciseTemplate";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import ThemeContext from "../contexts/themeContext";
-import UserContext from "../contexts/userContext";
-import SnackbarContext from "../contexts/snackbarContext";
 import FirebaseObject from "../firebase/firebase";
+import { useHookstate } from "@hookstate/core";
+import { addWorkout, globalUser, updateTemplate, updateWorkout } from "../states/userState";
+import { globalTheme } from "../states/themeState";
+import { handleOpenSnackbar } from "../states/snackbarState";
+import { addTemplate } from "../states/userState";
 
 interface Props {
 	mode: "create-template" | "edit-template" | "create-workout" | "edit-workout" | "log-workout";
@@ -35,40 +31,42 @@ function TemplatePage({ mode }: Props) {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const classes = useStyles();
-	const [user] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
 	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const firebaseObj = new FirebaseObject();
-	const [template, setTemplate] = useState<TemplateWorkoutType>(getTemplateOrWorkout());
+	const [template, setTemplate] = useState<TemplateType | WorkoutType>(getTemplateOrWorkout());
 
 	/**
 	 * Gets the proper template or workout.
 	 */
-	function getTemplateOrWorkout(): TemplateWorkoutType {
+	function getTemplateOrWorkout(): TemplateType | WorkoutType {
 		// If editing template or workout.
 		// Return template or workout specified by id.
 		try {
 			if (mode === "create-template") {
-				return Template() as TemplateType;
+				return Template();
 			} else if (mode === "edit-template") {
-				const findTemplate = user?.templates.find((template) => template.id === id);
+				const findTemplate = user.value?.templates.find((template) => template.id === id);
 				return findTemplate as TemplateType;
 			} else if (mode === "create-workout") {
-				return Workout() as WorkoutType;
+				return Workout();
 			} else if (mode === "edit-workout") {
-				const findWorkout = user?.workouts.find((workout) => workout.id === id);
+				const findWorkout = user.value?.workouts.find((workout) => workout.id === id);
 				return findWorkout as WorkoutType;
-			}
-			// Log Workout
-			const workoutTemplate = user?.templates.find((t) => t.id === id) as TemplateType;
+			} else {
+				// Log Workout
+				const workoutTemplate = user.value?.templates.find(
+					(t) => t.id === id
+				) as TemplateType;
 
-			// Create new workout with same name and exercises as template.
-			return Workout(workoutTemplate.name, workoutTemplate.exercises);
+				// Create new workout with same name and exercises as template.
+				return Workout(workoutTemplate.name, workoutTemplate.exercises);
+			}
 		} catch (e) {
 			// Redirect to create template page.
-			navigate("/createTemplate");
 			handleOpenSnackbar("Unable to find template.");
+			navigate("/createTemplate");
 		}
 
 		// If template/workout with id cannot be found.
@@ -101,17 +99,6 @@ function TemplatePage({ mode }: Props) {
 	}
 
 	/**
-	 * Handles opening snackbar with message.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
-
-	/**
 	 * Handles saving template/workout to database
 	 * - Edit & Template: update template in db.
 	 * - Edit & Workout: update workout in db.
@@ -127,7 +114,7 @@ function TemplatePage({ mode }: Props) {
 
 		if (mode === "create-template") {
 			try {
-				await firebaseObj.addTemplate(user as UserType, template as TemplateType);
+				await addTemplate(template);
 				handleOpenSnackbar(`Template: ${template?.name} successfully added.`);
 				navigate(-1);
 			} catch (e) {
@@ -137,7 +124,7 @@ function TemplatePage({ mode }: Props) {
 
 		if (mode === "edit-template") {
 			try {
-				await firebaseObj.updateTemplate(user as UserType, template as TemplateType);
+				await updateTemplate(template as TemplateType);
 				handleOpenSnackbar(`Template: ${template?.name} successfully updated.`);
 				navigate(-1);
 			} catch (e) {
@@ -148,7 +135,7 @@ function TemplatePage({ mode }: Props) {
 		if (mode === "create-workout" || mode === "log-workout") {
 			const workoutToAdd = Workout(template?.name, template?.exercises);
 			try {
-				await firebaseObj.addWorkout(user as UserType, workoutToAdd as WorkoutType);
+				await addWorkout(workoutToAdd);
 				handleOpenSnackbar(`Workout: ${workoutToAdd.name} successfully added.`);
 				navigate(-1);
 			} catch (e) {
@@ -159,7 +146,7 @@ function TemplatePage({ mode }: Props) {
 		if (mode === "edit-workout") {
 			try {
 				console.log("EDITING");
-				await firebaseObj.updateWorkout(user as UserType, template as WorkoutType);
+				await updateWorkout(template as WorkoutType);
 				handleOpenSnackbar(`Workout: ${template?.name} successfully updated.`);
 				navigate(-1);
 			} catch (e) {
@@ -266,8 +253,8 @@ function TemplatePage({ mode }: Props) {
 		<div
 			className={classes.mainContainer}
 			style={{
-				background: theme.background,
-				transition: theme.transition
+				background: theme.value.background,
+				transition: theme.value.transition
 			}}
 		>
 			{/* Exercises Dialog */}
@@ -284,8 +271,8 @@ function TemplatePage({ mode }: Props) {
 					textAlign='center'
 					sx={{
 						textAlign: "center",
-						color: theme.text,
-						transition: theme.transition
+						color: theme.value.text,
+						transition: theme.value.transition
 					}}
 				>
 					{/* Title of the page */}
@@ -304,9 +291,9 @@ function TemplatePage({ mode }: Props) {
 							}))
 						}
 						style={{
-							background: theme.paperBackground,
-							color: theme.text,
-							transition: theme.transition
+							background: theme.value.paperBackground,
+							color: theme.value.text,
+							transition: theme.value.transition
 						}}
 					/>
 					{/* Render all exercises here */}
@@ -341,8 +328,8 @@ function TemplatePage({ mode }: Props) {
 					direction='row'
 					className={classes.controlMenuBar}
 					sx={{
-						background: theme.paperBackground,
-						transition: theme.transition
+						background: theme.value.paperBackground,
+						transition: theme.value.transition
 					}}
 				>
 					{/* Add Exercise Btn */}

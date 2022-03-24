@@ -1,20 +1,19 @@
-import { useContext } from "react";
 import { Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useStyles } from "../styles/classes";
-
 import TemplateStart from "../components/LogWorkout/TemplateStart";
 import { useWindowSize } from "../hooks";
-import UserContext from "../contexts/userContext";
-import ThemeContext from "../contexts/themeContext";
-import { ThemeStateType, UserStateType } from "../models";
+import { useHookstate } from "@hookstate/core";
+import { globalUser } from "../states/userState";
+import { globalTheme } from "../states/themeState";
+import { TemplateType } from "../models";
 
 function LogWorkoutPage() {
 	const classes = useStyles();
 	const [width] = useWindowSize();
 	const navigate = useNavigate();
-	const [user] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
 
 	return (
 		<div className={classes.mainContainer}>
@@ -33,7 +32,7 @@ function LogWorkoutPage() {
 					<Typography
 						variant='h5'
 						sx={{
-							color: theme.text
+							color: theme.value.text
 						}}
 					>
 						Templates
@@ -49,17 +48,17 @@ function LogWorkoutPage() {
 						}}
 					>
 						{/* Render Templates Section */}
-						{user?.templates.length === 0 ? (
+						{user.value?.templates.length === 0 ? (
 							<Typography
 								style={{
-									color: theme.text,
-									transition: theme.transition
+									color: theme.value.text,
+									transition: theme.value.transition
 								}}
 							>
 								You currently have no templates.
 							</Typography>
 						) : (
-							user?.templates.map((template, idx) => (
+							user.value?.templates.map((template: TemplateType, idx: number) => (
 								<TemplateStart key={idx} template={template} />
 							))
 						)}

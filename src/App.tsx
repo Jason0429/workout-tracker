@@ -1,5 +1,5 @@
 // React
-import { useEffect, useState } from "react";
+import { useEffect, useState, FC } from "react";
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -32,12 +32,19 @@ import SnackbarContext from "./contexts/snackbarContext";
 
 import { SnackbarType, ThemeType, UserType } from "./models";
 import ViewWorkoutPage from "./pages/ViewWorkoutPage";
+import { useHookstate } from "@hookstate/core";
+import { globalTheme } from "./states/themeState";
+import { globalSnackbar, handleCloseSnackbar } from "./states/snackbarState";
+import { globalUser, handleOnAuthStateChanged } from "./states/userState";
+import ProtectedRoute from "./components/Global/ProtectedRoute";
 
-export default function App() {
-	const [user, setUser] = useState(null as UserType | null);
-	const themeMode = localStorage.getItem("themeMode") ?? "light";
-	const [theme, setTheme] = useState(themes[themeMode] as ThemeType);
-	const [snackbar, setSnackbar] = useState({ open: false, message: "" } as SnackbarType);
+export default function App(): JSX.Element {
+	// const [user, setUser] = useState(null as UserType | null);
+	// const [theme, setTheme] = useState(themes[themeMode] as ThemeType);
+	// const [snackbar, setSnackbar] = useState({ open: false, message: "" } as SnackbarType);
+	const theme = useHookstate(globalTheme);
+	const snackbar = useHookstate(globalSnackbar);
+	const user = useHookstate(globalUser);
 	const [initializing, setInitializing] = useState(true);
 	const classes = useStyles();
 	const firebaseObj = new FirebaseObject();
@@ -47,73 +54,39 @@ export default function App() {
 	 */
 	useEffect(() => {
 		const unsub = onAuthStateChanged(firebaseObj.auth, async (authUser: User | null) => {
-			// Signing in process
-			if (authUser) {
-				try {
-					// If user already exists in DB:
-					const existingUser: UserType = await firebaseObj.getUser();
-					console.log("User exists");
-					setUser(existingUser);
-				} catch (e) {
-					// If user does not exist in DB:
-					try {
-						// Create new user in database then update state to new user.
-						firebaseObj.createNewUser(authUser).then((newUser: UserType) => {
-							setUser(newUser);
-						});
-					} catch (e) {
-						// If user is unable to be created in the database.
-						alert("Something went wrong. Please try again.");
-					}
-				}
-			} else {
-				// Signing out process
-				// Update user state to null
-				setUser(null);
-			}
+			handleOnAuthStateChanged(authUser);
 
 			// Disable loading screen
 			if (initializing) setInitializing(false);
 		});
 
-		// return subscriber;
 		return () => unsub();
 	}, []); // DO NOT REMOVE []
 
+	/**
+	 * Updates every time user was modified in database.
+	 */
 	useEffect(() => {
 		// If user is logged in.
-		if (user) {
-			// If this user was modified in database:
-			const userDoc = doc(firebaseObj.db, "users", user?.id);
-
+		if (user.value) {
+			const userDoc = doc(firebaseObj.db, "users", user.value.id);
 			const unsub = onSnapshot(userDoc, (doc) => {
+				user.set(doc.data() as UserType);
 				console.log("User modified: ", doc.data() as UserType);
-				setUser(doc.data() as UserType);
 			});
 
 			return () => unsub();
 		}
 	}, [initializing]); // DO NOT REMOVE initializing dependency
 
-	/**
-	 * Handles closing the snackbar.
-	 */
-	function handleCloseSnackbar() {
-		setSnackbar((prev: SnackbarType) => ({
-			...prev,
-			open: false,
-			message: ""
-		}));
-	}
-
 	if (initializing)
 		return (
 			<div
 				className={classes.mainContainer}
 				style={{
-					background: theme.background,
-					transition: theme.transition,
-					color: theme.text
+					background: theme.value.background,
+					transition: theme.value.transition,
+					color: theme.value.text
 				}}
 			>
 				{"Loading..."}
@@ -121,154 +94,93 @@ export default function App() {
 		);
 
 	return (
-		<ThemeContext.Provider value={[theme, setTheme]}>
-			<UserContext.Provider value={[user, setUser]}>
-				<SnackbarContext.Provider value={[snackbar, setSnackbar]}>
-					<BrowserRouter basename='/'>
-						<div
-							className={classes.mainContainer}
-							style={{
-								background: theme.background,
-								transition: theme.transition
-							}}
-						>
-							<Navbar />
-							<Routes>
-								{/* View Workout Page (Uneditable) */}
-								<Route
-									path={"/viewWorkout/:id"}
-									element={
-										user ? <ViewWorkoutPage /> : <Navigate to={"/signin"} />
-									}
-								/>
-								{/* Create Template Page */}
-								<Route
-									path={"/createTemplate"}
-									element={
-										user ? (
-											<TemplatePage mode='create-template' />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
+		<BrowserRouter basename='/'>
+			<div
+				className={classes.mainContainer}
+				style={{
+					background: theme.value.background,
+					transition: theme.value.transition
+				}}
+			>
+				<Navbar />
+				<Routes>
+					{/* View Workout Page (Uneditable) */}
+					<ProtectedRoute path='/viewWorkout/:id' element={<ViewWorkoutPage />} />
 
-								{/* Edit Template Page */}
-								<Route
-									path={"/editTemplate/:id"}
-									element={
-										user ? (
-											<TemplatePage mode='edit-template' />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
+					{/* Create Template Page */}
+					<ProtectedRoute
+						path='/createTemplate'
+						element={<TemplatePage mode='create-template' />}
+					/>
 
-								{/* Create Workout to Log */}
-								<Route
-									path={"/createWorkout"}
-									element={
-										user ? (
-											<TemplatePage mode='create-workout' />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
+					{/* Edit Template Page */}
+					<ProtectedRoute
+						path='/editTemplate/:id'
+						element={<TemplatePage mode='edit-template' />}
+					/>
 
-								{/* Edit Logged Workout */}
-								<Route
-									path={"/editWorkout/:id"}
-									element={
-										user ? (
-											<TemplatePage mode='edit-workout' />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
+					{/* Create Workout to Log */}
+					<ProtectedRoute
+						path='/createWorkout'
+						element={<TemplatePage mode='create-workout' />}
+					/>
 
-								{/* Log Workout */}
-								<Route
-									path={"/logWorkout/:id"}
-									element={
-										user ? (
-											<TemplatePage mode='log-workout' />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
+					{/* Edit Logged Workout */}
+					<ProtectedRoute
+						path='/editWorkout/:id'
+						element={<TemplatePage mode='edit-workout' />}
+					/>
 
-								{/* View Progress Page*/}
-								<Route
-									path={"/progress"}
-									element={user ? <ProgressPage /> : <Navigate to={"/signin"} />}
-								/>
+					{/* Log Workout */}
+					<ProtectedRoute
+						path='/logWorkout/:id'
+						element={<TemplatePage mode='log-workout' />}
+					/>
 
-								{/* My Exercises Page */}
-								<Route
-									path={"/exercises"}
-									element={
-										user ? <MyExercisesPage /> : <Navigate to={"/signin"} />
-									}
-								/>
+					{/* View Progress Page*/}
+					<ProtectedRoute path='/progress' element={<ProgressPage />} />
 
-								{/* Log Workout Page*/}
-								<Route
-									path={"/log"}
-									element={
-										user ? <LogWorkoutPage /> : <Navigate to={"/signin"} />
-									}
-								/>
+					{/* My Exercises Page */}
+					<ProtectedRoute path='/exercises' element={<MyExercisesPage />} />
 
-								{/* Home page, redirects to SignInPage */}
-								<Route
-									path={"/home"}
-									element={user ? <HomePage /> : <Navigate to={"/signin"} />}
-								/>
+					{/* Log Workout Page*/}
+					<ProtectedRoute path='/log' element={<LogWorkoutPage />} />
 
-								{/* If user's logged in, redirect to HomePage, else sign in */}
-								<Route
-									path={"/signin"}
-									element={user ? <Navigate to={"/home"} /> : <SignInPage />}
-								/>
-								{/* Any other path */}
-								<Route
-									path='/*'
-									element={
-										user ? (
-											<Navigate to={"/home"} />
-										) : (
-											<Navigate to={"/signin"} />
-										)
-									}
-								/>
-							</Routes>
-							{user && (
-								<Snackbar
-									open={snackbar.open}
-									autoHideDuration={3000}
-									// onClose={() => dispatch(closeSnackbar())}
-									onClose={handleCloseSnackbar}
-									message={snackbar.message}
-									action={
-										<IconButton
-											size='small'
-											aria-label='close'
-											color='inherit'
-											onClick={handleCloseSnackbar}
-										>
-											<CloseIcon fontSize='small' />
-										</IconButton>
-									}
-								/>
-							)}
-						</div>
-					</BrowserRouter>
-				</SnackbarContext.Provider>
-			</UserContext.Provider>
-		</ThemeContext.Provider>
+					{/* Home page, redirects to SignInPage */}
+					<ProtectedRoute path='/home' element={<HomePage />} />
+
+					{/* If user's logged in, redirect to HomePage, else sign in */}
+					<Route
+						path='/signin'
+						element={user ? <Navigate to={"/home"} /> : <SignInPage />}
+					/>
+
+					{/* Any other path */}
+					<Route
+						path='/*'
+						element={user ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />}
+					/>
+				</Routes>
+
+				{user && (
+					<Snackbar
+						open={snackbar.value.open}
+						autoHideDuration={snackbar.value.autoCloseDelay}
+						onClose={handleCloseSnackbar}
+						message={snackbar.value.message}
+						action={
+							<IconButton
+								size='small'
+								aria-label='close'
+								color='inherit'
+								onClick={handleCloseSnackbar}
+							>
+								<CloseIcon fontSize='small' />
+							</IconButton>
+						}
+					/>
+				)}
+			</div>
+		</BrowserRouter>
 	);
 }
