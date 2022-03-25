@@ -1,9 +1,8 @@
 import { Stack, Typography, IconButton, Paper, Divider, Tooltip } from "@mui/material";
-import { useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
-import { ExerciseType, WorkoutType } from "../models";
+import { ExerciseType, SetType, WorkoutType } from "../models";
 import Spacer from "../components/Global/Spacer";
 import { useHookstate } from "@hookstate/core";
 import { globalUser } from "../states/user.state";
@@ -81,8 +80,9 @@ function ViewWorkoutPage() {
 				<Divider />
 				<br />
 
-				{workout?.exercises.map((e: ExerciseType) => (
+				{workout?.exercises.map((e: ExerciseType, idx: number) => (
 					<Paper
+						key={idx}
 						variant='outlined'
 						sx={{
 							width: "100%",
@@ -159,9 +159,10 @@ function ViewWorkoutPage() {
 							</Stack>
 						</Stack>
 						<Divider />
-						{e?.sets.map((s, idx) => (
+						{e?.sets.map((s: SetType, idx: number) => (
 							<Stack
 								direction='row'
+								key={idx}
 								sx={{
 									justifyContent: "space-between",
 									alignItems: "center",

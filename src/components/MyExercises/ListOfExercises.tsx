@@ -1,6 +1,6 @@
 import { useHookstate } from "@hookstate/core";
 import { Stack, Paper, Typography, List, ListItem, IconButton, ListItemText } from "@mui/material";
-import { ExerciseType } from "../../models";
+import { ExerciseType, UserType } from "../../models";
 import { globalTheme } from "../../states/theme.state";
 import { globalUser } from "../../states/user.state";
 import { useStyles } from "../../styles/classes";
@@ -89,6 +89,7 @@ function ListOfExercises({
 					}}
 				>
 					{user.value?.exercises
+						.map((e: ExerciseType) => e) // Have to make copy of array to prevent sort from mutating
 						.sort((a: ExerciseType, b: ExerciseType) => {
 							if (a.name < b.name) {
 								return -1;
@@ -98,7 +99,7 @@ function ListOfExercises({
 							return 0;
 						})
 						.filter((exercise: ExerciseType) =>
-							exercise?.name.toLowerCase().includes(searchedExercise.toLowerCase())
+							exercise.name.toLowerCase().includes(searchedExercise.toLowerCase())
 						)
 						.map((exercise: ExerciseType, idx: number) => (
 							<ListItem

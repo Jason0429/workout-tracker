@@ -1,37 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStyles } from "../styles/classes";
-import {
-	Template,
-	Workout,
-	TemplateType,
-	WorkoutType,
-	ExerciseType,
-	SetType,
-	TemplateWorkoutType,
-	UserType
-} from "../models";
+import { Template, Workout, TemplateType, WorkoutType, TemplateWorkoutType } from "../models";
 import ExercisesDialog from "../components/Template/ExercisesDialog";
-import ExerciseTemplate from "../components/Template/ExerciseTemplate";
-import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
-import CheckIcon from "@mui/icons-material/Check";
-import FirebaseObject from "../firebase/firebase";
 import { useHookstate } from "@hookstate/core";
-import {
-	addWorkout,
-	globalUser,
-	updateTemplate,
-	updateWorkout,
-	addTemplate
-} from "../states/user.state";
 import { globalTheme } from "../states/theme.state";
 import { handleOpenSnackbar } from "../states/snackbar.state";
 import { globalTemplatePage, init } from "../states/TemplatePage.state";
 import WorkoutDetailsSection from "../components/Template/WorkoutDetailsSection";
 import Controlbar from "../components/Template/Controlbar";
-import { Typography } from "@mui/material";
 import LoadingPage from "./LoadingPage";
+import { globalUser } from "../states/user.state";
 
 interface Props {
 	mode: "create-template" | "edit-template" | "create-workout" | "edit-workout" | "log-workout";

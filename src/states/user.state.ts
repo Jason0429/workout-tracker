@@ -1,5 +1,4 @@
 import { createState } from "@hookstate/core";
-import { User } from "firebase/auth";
 import FirebaseObject from "../firebase/firebase";
 import { ExerciseType, TemplateType, UserType, WorkoutType } from "../models";
 

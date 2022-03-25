@@ -168,6 +168,7 @@ function ExercisesDialog() {
 				}}
 			>
 				{user.value?.exercises
+					.map((e: ExerciseType) => e)
 					.sort((a: ExerciseType, b: ExerciseType) => {
 						if (a.name < b.name) {
 							return -1;

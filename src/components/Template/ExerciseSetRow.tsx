@@ -10,8 +10,6 @@ type Props = {
 	exerciseIdx: number;
 	setIdx: number;
 	set: SetType;
-	// handleDeleteSet: (exerciseIdx: number, setIdx: number) => void;
-	// handleEditSetDetail: (event: any, exerciseIdx: number, setIdx: number) => void;
 };
 
 function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {

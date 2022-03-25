@@ -20,10 +20,6 @@ import { handleAddSet, handleDeleteExercise } from "../../states/TemplatePage.st
 type Props = {
 	exercise: ExerciseType;
 	exerciseIdx: number;
-	// handleAddSet: (exerciseIdx: number) => void;
-	// handleDeleteSet: (exerciseIdx: number, setIdx: number) => void;
-	// handleDeleteExercise: (exerciseIdx: number) => void;
-	// handleEditSetDetail: (event: any, exerciseIdx: number, setIdx: number) => void;
 };
 
 function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
@@ -59,7 +55,6 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 						<IconButton size='small'>
 							<KeyboardArrowDownIcon
 								sx={{
-									// width: "100%",
 									color: theme.text.value,
 									transform: `rotate(${expanded ? "0deg" : "180deg"})`,
 									transition: theme.transition.value
@@ -139,8 +134,6 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 								set={set}
 								exerciseIdx={exerciseIdx}
 								setIdx={idx}
-								// handleDeleteSet={handleDeleteSet}
-								// handleEditSetDetail={handleEditSetDetail}
 							/>
 						))}
 

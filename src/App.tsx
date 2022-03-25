@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Firebase
 import FirebaseObject from "./firebase/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { User } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 
 // Material
@@ -50,16 +50,17 @@ export default function App() {
 				console.log("Signing in");
 				if (await firebaseObj.userExistsInDB()) {
 					console.log("User exists in DB");
-					user.set(await firebaseObj.getUser());
+					const userFromDB = await firebaseObj.getUser();
+					user.set(userFromDB);
 				} else {
 					console.log("Creating new user in DB");
-					user.set(await firebaseObj.createNewUser());
+					const newUser = await firebaseObj.createNewUser();
+					user.set(newUser);
 				}
 			} else {
 				console.log("Logged out");
 				user.set(null);
 			}
-
 			if (loading) setLoading(false);
 		});
 
@@ -97,60 +98,75 @@ export default function App() {
 				<Navbar />
 				<Routes>
 					{/* View Workout Page (Uneditable) */}
-					<ProtectedRoute path='/viewWorkout/:id' element={<ViewWorkoutPage />} />
+					<Route
+						path='/viewWorkout/:id'
+						element={<ProtectedRoute element={<ViewWorkoutPage />} />}
+					/>
 
 					{/* Create Template Page */}
-					<ProtectedRoute
+					<Route
 						path='/createTemplate'
-						element={<TemplatePage mode='create-template' />}
+						element={
+							<ProtectedRoute element={<TemplatePage mode='create-template' />} />
+						}
 					/>
 
 					{/* Edit Template Page */}
-					<ProtectedRoute
+					<Route
 						path='/editTemplate/:id'
-						element={<TemplatePage mode='edit-template' />}
+						element={<ProtectedRoute element={<TemplatePage mode='edit-template' />} />}
 					/>
 
 					{/* Create Workout to Log */}
-					<ProtectedRoute
+					<Route
 						path='/createWorkout'
-						element={<TemplatePage mode='create-workout' />}
+						element={
+							<ProtectedRoute element={<TemplatePage mode='create-workout' />} />
+						}
 					/>
 
 					{/* Edit Logged Workout */}
-					<ProtectedRoute
+					<Route
 						path='/editWorkout/:id'
-						element={<TemplatePage mode='edit-workout' />}
+						element={<ProtectedRoute element={<TemplatePage mode='edit-workout' />} />}
 					/>
 
 					{/* Log Workout */}
-					<ProtectedRoute
+					<Route
 						path='/logWorkout/:id'
-						element={<TemplatePage mode='log-workout' />}
+						element={<ProtectedRoute element={<TemplatePage mode='log-workout' />} />}
 					/>
 
 					{/* View Progress Page*/}
-					<ProtectedRoute path='/progress' element={<ProgressPage />} />
+					<Route
+						path='/progress'
+						element={<ProtectedRoute element={<ProgressPage />} />}
+					/>
 
 					{/* My Exercises Page */}
-					<ProtectedRoute path='/exercises' element={<MyExercisesPage />} />
+					<Route
+						path='/exercises'
+						element={<ProtectedRoute element={<MyExercisesPage />} />}
+					/>
 
 					{/* Log Workout Page*/}
-					<ProtectedRoute path='/log' element={<LogWorkoutPage />} />
+					<Route path='/log' element={<ProtectedRoute element={<LogWorkoutPage />} />} />
 
-					{/* Home page, redirects to SignInPage */}
-					<ProtectedRoute path='/home' element={<HomePage />} />
+					{/* Home page */}
+					<Route path='/home' element={<ProtectedRoute element={<HomePage />} />} />
 
 					{/* If user's logged in, redirect to HomePage, else sign in */}
 					<Route
 						path='/signin'
-						element={user ? <Navigate to={"/home"} /> : <SignInPage />}
+						element={user.value ? <Navigate to={"/home"} /> : <SignInPage />}
 					/>
 
 					{/* Any other path */}
 					<Route
 						path='/*'
-						element={user ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />}
+						element={
+							user.value ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />
+						}
 					/>
 				</Routes>
 

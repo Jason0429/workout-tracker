@@ -44,9 +44,9 @@ function ProgressPage() {
 	);
 
 	// Needed to update "Workouts On This Day"
-	useEffect(() => {
-		setWorkoutsOnThisDay(getWorkoutsOnThisDay(selectedDate));
-	}, [selectedDate, user.value?.workouts]);
+	// useEffect(() => {
+	// 	setWorkoutsOnThisDay(getWorkoutsOnThisDay(selectedDate));
+	// }, [selectedDate, user.value?.workouts]);
 
 	/**
 	 * Returns array of workouts on specified date.
@@ -63,6 +63,17 @@ function ProgressPage() {
 					new Date(workout.dateCreated).toDateString() === dateSelected.toDateString()
 			) ?? []
 		);
+	}
+
+	/**
+	 * Handles when user changes date.
+	 * @param newDate
+	 */
+	function handleOnDateChange(newDate: Date | null) {
+		if (!newDate) return;
+
+		setSelectedDate(newDate);
+		setWorkoutsOnThisDay(getWorkoutsOnThisDay(newDate));
 	}
 
 	/**
@@ -139,8 +150,9 @@ function ProgressPage() {
 							orientation='portrait'
 							openTo='day'
 							value={selectedDate}
-							onChange={(newDate) => {
-								setSelectedDate(newDate);
+							onChange={(newDate: Date | null) => {
+								handleOnDateChange(newDate);
+								// setSelectedDate(newDate);
 							}}
 							renderInput={(params) => <TextField {...params} />}
 						/>
