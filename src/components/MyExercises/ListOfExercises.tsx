@@ -1,6 +1,6 @@
 import { useHookstate } from "@hookstate/core";
 import { Stack, Paper, Typography, List, ListItem, IconButton, ListItemText } from "@mui/material";
-import { ExerciseType, UserType } from "../../models";
+import { ExerciseType } from "../../models";
 import { globalTheme } from "../../states/theme.state";
 import { globalUser } from "../../states/user.state";
 import { useStyles } from "../../styles/classes";

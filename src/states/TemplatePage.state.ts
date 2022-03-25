@@ -5,12 +5,11 @@ import {
 	Template,
 	TemplateType,
 	TemplateWorkoutType,
-	UserType,
 	Workout,
 	WorkoutType
 } from "../models";
 import { handleOpenSnackbar } from "./snackbar.state";
-import { addTemplate, addWorkout, globalUser, updateTemplate, updateWorkout } from "./user.state";
+import { addTemplate, addWorkout, updateTemplate, updateWorkout } from "./user.state";
 
 type TemplatePageState = {
 	template: TemplateWorkoutType;

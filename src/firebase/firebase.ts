@@ -1,9 +1,8 @@
 import { firebaseApp } from "./config";
 import { doc, Firestore, getDoc, getFirestore, setDoc } from "firebase/firestore";
-import { Auth, getAuth, GoogleAuthProvider, signInWithPopup, signOut, User } from "firebase/auth";
-import { ExerciseType, TemplateType, UserType, WorkoutType } from "../models";
+import { Auth, getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { UserType } from "../models";
 import { exercises } from "../data/exercises";
-import { serialize } from "v8";
 
 export default class FirebaseObject {
 	db: Firestore = getFirestore(firebaseApp);
