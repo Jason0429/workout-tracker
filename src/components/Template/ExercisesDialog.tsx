@@ -1,44 +1,25 @@
-import { useState, useContext } from "react";
-import {
-	ExerciseType,
-	ThemeStateType,
-	UserStateType,
-	UserType,
-	SnackbarStateType,
-	Exercise,
-	Set
-} from "../../models";
-import { List, ListItem, ListItemText, Dialog, DialogTitle, Stack, Paper } from "@mui/material";
+import { useState } from "react";
+import { ExerciseType, Exercise, Set } from "../../models";
+import { List, ListItem, ListItemText, Dialog, DialogTitle, Stack } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useStyles } from "../../styles/classes";
-import UserContext from "../../contexts/userContext";
-import ThemeContext from "../../contexts/themeContext";
-import FirebaseObject from "../../firebase/firebase";
-import SnackbarContext from "../../contexts/snackbarContext";
-// import { useAppSelector } from "../../app/hooks";
+import {
+	globalTemplatePage,
+	handleAddExercise,
+	handleCloseDialog
+} from "../../states/TemplatePage.state";
+import { handleOpenSnackbar } from "../../states/snackbar.state";
+import { addCustomExercise, globalUser } from "../../states/user.state";
+import { useHookstate } from "@hookstate/core";
+import { globalTheme } from "../../states/theme.state";
 
-type Props = {
-	open: boolean;
-	handleCloseDialog: () => void;
-	handleAddExercise: (exercise: ExerciseType) => void;
-};
-
-function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) {
+function ExercisesDialog() {
 	const classes = useStyles();
-	const [user, setUser] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
+	const templatePageState = useHookstate(globalTemplatePage);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [customExerciseName, setCustomExerciseName] = useState("");
-
-	function comparator(a: ExerciseType, b: ExerciseType): -1 | 0 | 1 {
-		if (a.name < b.name) {
-			return -1;
-		} else if (a.name > b.name) {
-			return 1;
-		}
-		return 0;
-	}
 
 	/**
 	 * Resets input fields.
@@ -66,17 +47,6 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 	}
 
 	/**
-	 * Handles opening snackbar with message.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
-
-	/**
 	 * Handles adding custom exercise to database.
 	 * @param exerciseName the name of custom exercise.
 	 */
@@ -84,8 +54,7 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 		const customExercise = Exercise(exerciseName.trim(), []);
 
 		try {
-			const firebaseObj = new FirebaseObject();
-			await firebaseObj.addCustomExercise(user as UserType, customExercise as ExerciseType);
+			await addCustomExercise(customExercise as ExerciseType);
 
 			// Add this custom exercise to current template/workout.
 			// Closes add exercise dialog.
@@ -105,10 +74,10 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 		<Dialog
 			// If you press outside of dialog
 			onClose={handleCloseDialogAndClear}
-			open={open}
+			open={templatePageState.openExerciseDialog.value}
 			fullWidth={true}
 			sx={{
-				background: theme.background
+				background: theme.background.value
 			}}
 		>
 			<Stack
@@ -119,7 +88,7 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 					width: "100%",
 					justifyContent: "center",
 					alignItems: "center",
-					background: theme.background,
+					background: theme.background.value,
 					zIndex: 1,
 					paddingBottom: "20px",
 					borderBottom: "1px solid #00000020"
@@ -127,8 +96,8 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 			>
 				<DialogTitle
 					sx={{
-						color: theme.text,
-						transition: theme.transition
+						color: theme.text.value,
+						transition: theme.transition.value
 					}}
 				>
 					Select an Exercise
@@ -147,9 +116,9 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 						onChange={(e) => setSearchTerm(e.target.value)}
 						autoFocus
 						style={{
-							background: theme.paperBackground,
-							color: theme.text,
-							transition: theme.transition
+							background: theme.paperBackground.value,
+							color: theme.text.value,
+							transition: theme.transition.value
 						}}
 					/>
 
@@ -172,17 +141,17 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 									: null
 							}
 							style={{
-								background: theme.paperBackground,
-								color: theme.text,
-								transition: theme.transition
+								background: theme.paperBackground.value,
+								color: theme.text.value,
+								transition: theme.transition.value
 							}}
 						/>
 						<SendIcon
 							className={classes.sendIcon}
 							onClick={() => handleAddCustomExercise(customExerciseName)}
 							sx={{
-								color: theme.text,
-								transition: theme.transition
+								color: theme.text.value,
+								transition: theme.transition.value
 							}}
 						/>
 					</Stack>
@@ -193,15 +162,21 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 			<List
 				className={classes.list}
 				sx={{
-					background: theme.background,
-					transition: theme.transition,
+					background: theme.background.value,
+					transition: theme.transition.value,
 					height: "fit-content"
-					// minHeight: "90vh"
-					// overflowY: "scroll"
 				}}
 			>
-				{user?.exercises
-					.sort((a: ExerciseType, b: ExerciseType) => comparator(a, b))
+				{user.value?.exercises
+					.map((e: ExerciseType) => e)
+					.sort((a: ExerciseType, b: ExerciseType) => {
+						if (a.name < b.name) {
+							return -1;
+						} else if (a.name > b.name) {
+							return 1;
+						}
+						return 0;
+					})
 					.filter((exercise: ExerciseType) =>
 						exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
 					)
@@ -214,8 +189,8 @@ function ExercisesDialog({ handleCloseDialog, open, handleAddExercise }: Props) 
 							<ListItemText
 								primary={exercise?.name}
 								sx={{
-									color: theme.text,
-									transition: theme.transition
+									color: theme.text.value,
+									transition: theme.transition.value
 								}}
 							/>
 						</ListItem>

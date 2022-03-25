@@ -1,21 +1,20 @@
-import { useContext } from "react";
 import { Input, Stack } from "@mui/material";
-import { SetType, ThemeStateType } from "../../models";
+import { SetType } from "../../models";
 import { useStyles } from "../../styles/classes";
 import CloseIcon from "@mui/icons-material/Close";
-import ThemeContext from "../../contexts/themeContext";
+import { useHookstate } from "@hookstate/core";
+import { globalTheme } from "../../states/theme.state";
+import { handleDeleteSet, handleEditSetDetail } from "../../states/TemplatePage.state";
 
 type Props = {
 	exerciseIdx: number;
 	setIdx: number;
 	set: SetType;
-	handleDeleteSet: (exerciseIdx: number, setIdx: number) => void;
-	handleEditSetDetail: (event: any, exerciseIdx: number, setIdx: number) => void;
 };
 
-function ExerciseSetRow({ exerciseIdx, setIdx, set, handleDeleteSet, handleEditSetDetail }: Props) {
+function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
 	const classes = useStyles();
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
+	const theme = useHookstate(globalTheme);
 
 	return (
 		<>
@@ -23,8 +22,8 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set, handleDeleteSet, handleEditS
 				<div
 					className={classes.setNumber}
 					style={{
-						color: theme.text,
-						transition: theme.transition
+						color: theme.text.value,
+						transition: theme.transition.value
 					}}
 				>
 					{setIdx + 1}
@@ -37,8 +36,8 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set, handleDeleteSet, handleEditS
 					inputProps={{ min: 0 }}
 					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text,
-						transition: theme.transition
+						color: theme.text.value,
+						transition: theme.transition.value
 					}}
 				/>
 				<Input
@@ -49,8 +48,8 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set, handleDeleteSet, handleEditS
 					inputProps={{ min: 0 }}
 					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text,
-						transition: theme.transition
+						color: theme.text.value,
+						transition: theme.transition.value
 					}}
 				/>
 				<Input
@@ -61,8 +60,8 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set, handleDeleteSet, handleEditS
 					inputProps={{ min: 0, max: 10 }}
 					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text,
-						transition: theme.transition
+						color: theme.text.value,
+						transition: theme.transition.value
 					}}
 				/>
 				<div

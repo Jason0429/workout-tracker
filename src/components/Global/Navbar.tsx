@@ -1,5 +1,5 @@
 // React
-import React, { useContext, useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 // Material
@@ -21,21 +21,15 @@ import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-
-// Redux
-// import { useAppSelector, useAppDispatch } from "../../app/hooks";
-// import { toggleTheme } from "../../app/features/theme/themeSlice";
 import FirebaseObject from "../../firebase/firebase";
-import ThemeContext from "../../contexts/themeContext";
 import { themes } from "../../styles/theme";
-import UserContext from "../../contexts/userContext";
+import { useHookstate } from "@hookstate/core";
+import { globalUser } from "../../states/user.state";
+import { globalTheme } from "../../states/theme.state";
 
 function Navbar() {
-	// const user = useAppSelector((state) => state.user);
-	// const theme = useAppSelector((state) => state.theme);
-	// const dispatch = useAppDispatch();
-	const [theme, setTheme] = useContext(ThemeContext);
-	const [user, setUser] = useContext(UserContext);
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
 	const [anchorEl, setAnchorEl] = useState<any>(null);
 	const openMenu = Boolean(anchorEl);
 	/**
@@ -65,11 +59,11 @@ function Navbar() {
 	 * Handles theme toggling.
 	 */
 	function handleToggleTheme() {
-		if (theme.mode === "light") {
-			setTheme(themes.dark);
+		if (theme.mode.value === "light") {
+			theme.set(themes.dark);
 			localStorage.setItem("themeMode", "dark");
 		} else {
-			setTheme(themes.light);
+			theme.set(themes.light);
 			localStorage.setItem("themeMode", "light");
 		}
 	}
@@ -84,8 +78,8 @@ function Navbar() {
 				height: "50px",
 				width: "100%",
 				zIndex: 100,
-				background: theme.paperBackground,
-				transition: theme.transition
+				background: theme.paperBackground.value,
+				transition: theme.transition.value
 			}}
 		>
 			<Stack
@@ -106,15 +100,15 @@ function Navbar() {
 				>
 					<Typography
 						sx={{
-							color: theme.text,
-							transition: theme.transition
+							color: theme.text.value,
+							transition: theme.transition.value
 						}}
 					>
-						{user ? user.name : "Workout Tracker"}
+						{user.value?.name ?? "Workout Tracker"}
 					</Typography>
-					{user && (
+					{user.value && (
 						<IconButton onClick={handleOpen} size='small' className='mui-fixed'>
-							<Avatar sx={{ width: 35, height: 35 }} src={user.photoURL} />
+							<Avatar sx={{ width: 35, height: 35 }} src={user.value.photoURL!} />
 						</IconButton>
 					)}
 					<Menu
@@ -127,13 +121,13 @@ function Navbar() {
 					>
 						<MenuItem onClick={handleToggleTheme}>
 							<ListItemIcon>
-								{theme.mode === "light" ? (
+								{theme.mode.value === "light" ? (
 									<Brightness4Icon fontSize='small' />
 								) : (
 									<Brightness7Icon fontSize='small' />
 								)}
 							</ListItemIcon>
-							{theme.mode === "light" ? "View Dark Mode" : "View Light Mode"}
+							{theme.mode.value === "light" ? "View Dark Mode" : "View Light Mode"}
 						</MenuItem>
 						<MenuItem component={NavLink} to='/home'>
 							<ListItemIcon>

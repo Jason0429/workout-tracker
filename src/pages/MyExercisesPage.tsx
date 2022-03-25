@@ -1,39 +1,15 @@
-// React
-import { useState, useContext } from "react";
+import { useState } from "react";
 
-// // Components
-// import EditExerciseDialog from '../components/MyExercises/EditExerciseDialog';
-// import AddExerciseDialog from '../components/MyExercises/AddExerciseDialog';
-// import ConfirmationDialog from '../components/global/ConfirmationDialog';
-
-// Material
-import { IconButton, Typography, Stack, ListItemText, Paper, List, ListItem } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-
-import {
-	ExerciseType,
-	SnackbarStateType,
-	ThemeStateType,
-	UserStateType,
-	UserType
-} from "../models";
-import { useStyles } from "../styles/classes";
-import UserContext from "../contexts/userContext";
-import ThemeContext from "../contexts/themeContext";
-import SnackbarContext from "../contexts/snackbarContext";
+import { ExerciseType } from "../models";
 import AddExerciseDialog from "../components/MyExercises/AddExerciseDialog";
 import EditExerciseDialog from "../components/MyExercises/EditExerciseDialog";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
-import FirebaseObject from "../firebase/firebase";
+import { deleteExercise } from "../states/user.state";
+import { handleOpenSnackbar } from "../states/snackbar.state";
+import ListOfExercises from "../components/MyExercises/ListOfExercises";
+import Controlbar from "../components/MyExercises/Controlbar";
 
 function MyExercisesPage() {
-	const [user] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
-	const classes = useStyles();
-	const [expanded, setExpanded] = useState(true);
-
 	// Filters available exercises to search preference.
 	const [searchedExercise, setSearchedExercise] = useState("");
 
@@ -53,18 +29,6 @@ function MyExercisesPage() {
 	const [selectedExerciseToDelete, setSelectedExerciseToDelete] = useState<ExerciseType | null>(
 		null
 	);
-
-	/**
-	 * Handles opening snackbar with message.
-	 * @param message message to be shown in snackbar.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
 
 	/**
 	 * Handles opening Edit Exercise Dialog.
@@ -100,11 +64,7 @@ function MyExercisesPage() {
 	 */
 	async function handleDeleteExerciseAfterConfirmation() {
 		try {
-			const firebaseObj = new FirebaseObject();
-			await firebaseObj.deleteExercise(
-				user as UserType,
-				selectedExerciseToDelete as ExerciseType
-			);
+			await deleteExercise(selectedExerciseToDelete as ExerciseType);
 
 			// Close confirmation dialog.
 			setOpenConfirmationDialog(false);
@@ -120,21 +80,6 @@ function MyExercisesPage() {
 				`Something went wrong. Exercise: ${selectedExerciseToDelete?.name} could not be deleted.`
 			);
 		}
-	}
-
-	/**
-	 * Returns ascending sort comparator value based on exercise names.
-	 * @param a first exercise.
-	 * @param b second exercise.
-	 * @returns value to determine sorting of exercise.
-	 */
-	function comparator(a: ExerciseType, b: ExerciseType): -1 | 0 | 1 {
-		if (a.name < b.name) {
-			return -1;
-		} else if (a.name > b.name) {
-			return 1;
-		}
-		return 0;
 	}
 
 	return (
@@ -170,153 +115,14 @@ function MyExercisesPage() {
 				/>
 			)}
 			{/* List of Exercises */}
-			<Stack
-				direction='column'
-				sx={{
-					margin: "20px 0 100px 0",
-					width: "95%",
-					maxWidth: "600px"
-				}}
-			>
-				<Paper
-					variant='outlined'
-					sx={{
-						width: "100%",
-						background: theme.paperBackground,
-						transition: theme.transition
-					}}
-				>
-					<Paper
-						sx={{
-							padding: "10px",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							background: theme.paperBackground,
-							transition: theme.transition
-						}}
-					>
-						<Typography
-							variant='h6'
-							sx={{
-								transition: theme.transition,
-								color: theme.text
-							}}
-						>
-							My Exercises
-						</Typography>
-					</Paper>
-
-					<Paper
-						variant='outlined'
-						sx={{
-							padding: "15px",
-							background: theme.background,
-							transition: theme.transition
-						}}
-					>
-						<input
-							placeholder='Search for exercise'
-							className={classes.roundInputField}
-							value={searchedExercise}
-							onChange={(e) => setSearchedExercise(e.target.value)}
-							style={{
-								background: theme.paperBackground,
-								transition: theme.transition,
-								color: theme.text
-							}}
-						/>
-					</Paper>
-					<List
-						sx={{
-							width: "100%",
-							padding: "0"
-						}}
-					>
-						{user?.exercises
-							.sort((a: ExerciseType, b: ExerciseType) => comparator(a, b))
-							.filter((exercise: ExerciseType) =>
-								exercise?.name
-									.toLowerCase()
-									.includes(searchedExercise.toLowerCase())
-							)
-							.map((exercise: ExerciseType, idx: number) => (
-								<ListItem
-									divider
-									sx={{
-										background: theme.paperBackground,
-										transition: theme.transition
-									}}
-									key={idx}
-									secondaryAction={
-										<Stack direction='row' alignItems='center' spacing={1}>
-											<IconButton
-												edge='end'
-												aria-label='edit'
-												// To edit exercise
-												onClick={() =>
-													handleOpenEditExerciseDialog(exercise)
-												}
-											>
-												<EditIcon
-													sx={{
-														transition: theme.transition,
-														color: theme.text
-													}}
-												/>
-											</IconButton>
-											<IconButton
-												edge='end'
-												aria-label='delete'
-												// To delete exercise
-												onClick={() =>
-													handleDeleteExerciseBeforeConfirmation(exercise)
-												}
-											>
-												<DeleteIcon
-													sx={{
-														transition: theme.transition,
-														color: theme.text
-													}}
-												/>
-											</IconButton>
-										</Stack>
-									}
-								>
-									<ListItemText
-										primary={exercise?.name}
-										sx={{
-											transition: theme.transition,
-											color: theme.text
-										}}
-									/>
-								</ListItem>
-							))}
-					</List>
-				</Paper>
-			</Stack>
+			<ListOfExercises
+				searchedExercise={searchedExercise}
+				setSearchedExercise={setSearchedExercise}
+				handleOpenEditExerciseDialog={handleOpenEditExerciseDialog}
+				handleDeleteExerciseBeforeConfirmation={handleDeleteExerciseBeforeConfirmation}
+			/>
 			{/* Bottom Fixed Row */}
-			<Paper
-				variant='outlined'
-				sx={{
-					zIndex: 2,
-					padding: "20px",
-					position: "fixed",
-					bottom: 0,
-					width: "100%",
-					background: theme.background,
-					transition: theme.transition
-				}}
-			>
-				<Stack direction='column' alignItems='center' justifyContent='center'>
-					<button
-						className={classes.blueBtn}
-						onClick={() => setOpenAddExerciseDialog(true)}
-					>
-						+ Add New Exercise
-					</button>
-				</Stack>
-			</Paper>
+			<Controlbar setOpenAddExerciseDialog={setOpenAddExerciseDialog} />
 		</>
 	);
 }

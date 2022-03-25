@@ -1,5 +1,5 @@
 // React
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 // Material
 import {
@@ -14,10 +14,10 @@ import {
 import Chip from "@mui/material/Chip";
 
 // Models
-import { Exercise, ExerciseType, SnackbarStateType, UserStateType, UserType } from "../../models";
-import SnackbarContext from "../../contexts/snackbarContext";
-import FirebaseObject from "../../firebase/firebase";
-import UserContext from "../../contexts/userContext";
+import { Exercise, ExerciseType } from "../../models";
+import { useHookstate } from "@hookstate/core";
+import { addCustomExercise, globalUser } from "../../states/user.state";
+import { handleOpenSnackbar } from "../../states/snackbar.state";
 
 interface Props {
 	open: boolean;
@@ -25,21 +25,9 @@ interface Props {
 }
 
 function AddExerciseDialog({ open, onClose }: Props) {
+	const user = useHookstate(globalUser);
 	const [newExercise, setNewExercise] = useState(Exercise("", []));
 	const [category, setCategory] = useState("");
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
-	const [user] = useContext(UserContext) as UserStateType;
-
-	/**
-	 * Handles opening snackbar with message.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
 
 	/**
 	 * Handles closing dialog.
@@ -104,19 +92,13 @@ function AddExerciseDialog({ open, onClose }: Props) {
 		};
 
 		// Check if exercise with this name already exists.
-		if (user?.exercises.some((e) => e.name === exerciseToBeAdded?.name)) {
+		if (user.value?.exercises.some((e) => e.name === exerciseToBeAdded?.name)) {
 			handleOpenSnackbar(`Exercise: ${exerciseToBeAdded?.name} already exists.`);
 			return;
 		}
 
 		try {
-			const firebaseObj = new FirebaseObject();
-			await firebaseObj.addCustomExercise(
-				user as UserType,
-				exerciseToBeAdded as ExerciseType
-			);
-
-			console.log(exerciseToBeAdded);
+			await addCustomExercise(exerciseToBeAdded as ExerciseType);
 
 			handleOpenSnackbar(`Exercise: ${exerciseToBeAdded?.name} has been successfully added.`);
 		} catch (e) {

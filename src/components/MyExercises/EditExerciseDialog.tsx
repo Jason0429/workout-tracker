@@ -1,5 +1,5 @@
 // React
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 
 // Material
 import {
@@ -12,18 +12,9 @@ import {
 	Stack
 } from "@mui/material";
 import Chip from "@mui/material/Chip";
-import {
-	ExerciseType,
-	SnackbarType,
-	ThemeStateType,
-	UserStateType,
-	UserType,
-	SnackbarStateType
-} from "../../models";
-import FirebaseObject from "../../firebase/firebase";
-import UserContext from "../../contexts/userContext";
-import { ThemeContext } from "@emotion/react";
-import SnackbarContext from "../../contexts/snackbarContext";
+import { ExerciseType } from "../../models";
+import { updateExercise } from "../../states/user.state";
+import { handleOpenSnackbar } from "../../states/snackbar.state";
 
 interface Props {
 	open: boolean;
@@ -33,8 +24,6 @@ interface Props {
 function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	const [newExercise, setNewExercise] = useState({ ...exercise });
 	const [category, setCategory] = useState("");
-	const [user] = useContext(UserContext) as UserStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
 
 	/**
 	 * Every time a new exercise is selected to be edited,
@@ -97,24 +86,12 @@ function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	}
 
 	/**
-	 * Handles opening snackbar with message.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev: SnackbarType) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
-
-	/**
 	 * Handles updating exercise in database.
 	 * @param updatedExercise updated exercise that will be updated in database.
 	 */
 	async function handleUpdateExercise(updatedExercise: ExerciseType) {
-		const firebaseObj = new FirebaseObject();
 		try {
-			await firebaseObj.updateExercise(user as UserType, updatedExercise as ExerciseType);
+			await updateExercise(updatedExercise as ExerciseType);
 			handleOpenSnackbar(`Exercise: ${updatedExercise?.name} has been successfully updated.`);
 		} catch (e) {
 			handleOpenSnackbar(

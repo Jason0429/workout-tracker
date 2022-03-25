@@ -1,25 +1,22 @@
-import { useContext } from "react";
-import styled from "@mui/styled-engine";
-import { Stack } from "@mui/material";
+import { Stack, styled } from "@mui/material";
 import { NavLink } from "react-router-dom";
-import ThemeContext from "../contexts/themeContext";
-import { ThemeStateType } from "../models";
+import { useHookstate } from "@hookstate/core";
+import { globalTheme } from "../states/theme.state";
 
 function HomePage() {
-	// const theme = useAppSelector((state) => state.theme);
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
+	const theme = useHookstate(globalTheme);
 
 	const MyNavLink = styled(NavLink)`
-		background: ${theme.paperBackground};
+		background: ${theme.value.paperBackground};
 		border-radius: 20px;
 		padding: 10px;
 		width: 200px;
 		text-align: center;
 		text-decoration: none;
-		color: ${theme.text};
+		color: ${theme.value.text};
 
 		&:hover {
-			background: ${theme.paperBackgroundHover};
+			background: ${theme.value.paperBackgroundHover};
 		}
 	`;
 

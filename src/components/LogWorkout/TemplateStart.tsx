@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	Stack,
@@ -13,17 +13,11 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import {
-	SnackbarStateType,
-	TemplateType,
-	ThemeStateType,
-	UserStateType,
-	UserType
-} from "../../models";
-import ThemeContext from "../../contexts/themeContext";
-import FirebaseObject from "../../firebase/firebase";
-import UserContext from "../../contexts/userContext";
-import SnackbarContext from "../../contexts/snackbarContext";
+import { TemplateType } from "../../models";
+import { useHookstate } from "@hookstate/core";
+import { deleteTemplate } from "../../states/user.state";
+import { globalTheme } from "../../states/theme.state";
+import { handleOpenSnackbar } from "../../states/snackbar.state";
 
 interface Props {
 	template: TemplateType;
@@ -31,12 +25,10 @@ interface Props {
 
 function TemplateStart({ template }: Props) {
 	const MAX_NUMBER_OF_DISPLAYABLE_EXERCISES = 4;
-	const [user] = useContext(UserContext) as UserStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
+	const theme = useHookstate(globalTheme);
 	const navigate = useNavigate();
 	const [anchorEl, setAnchorEl] = useState<any>(null);
 	const openMenu = Boolean(anchorEl);
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
 
 	function renderExerciseNames() {
 		let toRender = [];
@@ -62,25 +54,12 @@ function TemplateStart({ template }: Props) {
 	}
 
 	/**
-	 * Handles opening snackbar with message.
-	 * @param message message in snackbar.
-	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
-	}
-
-	/**
 	 * Handles deleting template from database.
 	 * @param template template to be deleted.
 	 */
 	async function handleDeleteTemplate(template: TemplateType) {
 		try {
-			const firebaseObj = new FirebaseObject();
-			await firebaseObj.deleteTemplate(user as UserType, template as TemplateType);
+			await deleteTemplate(template as TemplateType);
 			handleOpenSnackbar(`Template: ${template?.name} has been successfully deleted.`);
 		} catch (e) {
 			handleOpenSnackbar(
@@ -98,7 +77,7 @@ function TemplateStart({ template }: Props) {
 				height: "150px",
 				position: "relative",
 				cursor: "pointer",
-				background: theme.paperBackground
+				background: theme.paperBackground.value
 			}}
 		>
 			<Stack
@@ -109,7 +88,10 @@ function TemplateStart({ template }: Props) {
 			>
 				{/* Template Name */}
 				<Stack direction='row' alignItems='center' justifyContent='space-between'>
-					<Typography variant='subtitle1' sx={{ fontWeight: "bold", color: theme.text }}>
+					<Typography
+						variant='subtitle1'
+						sx={{ fontWeight: "bold", color: theme.text.value }}
+					>
 						{template.name}
 					</Typography>
 				</Stack>
@@ -120,7 +102,7 @@ function TemplateStart({ template }: Props) {
 						<Typography
 							variant='caption'
 							noWrap
-							sx={{ width: "90%", color: theme.text }}
+							sx={{ width: "90%", color: theme.text.value }}
 							key={idx}
 						>
 							{exerciseName}
@@ -140,7 +122,7 @@ function TemplateStart({ template }: Props) {
 			>
 				<MoreVertIcon
 					sx={{
-						color: theme.text
+						color: theme.text.value
 					}}
 				/>
 			</IconButton>

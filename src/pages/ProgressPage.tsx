@@ -1,5 +1,5 @@
 // React
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Components
@@ -12,7 +12,6 @@ import TextField from "@mui/material/TextField";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import { StaticDatePicker } from "@mui/lab";
-// import { BrowserView, MobileView } from "react-device-detect";
 import Paper from "@mui/material/Paper";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -23,17 +22,16 @@ import ListItemButton from "@mui/material/ListItemButton";
 
 // Hooks
 import { useWindowSize } from "../hooks";
-import { SnackbarStateType, UserStateType, UserType, WorkoutType, ThemeStateType } from "../models";
-import UserContext from "../contexts/userContext";
-import ThemeContext from "../contexts/themeContext";
+import { WorkoutType } from "../models";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
-import FirebaseObject from "../firebase/firebase";
-import SnackbarContext from "../contexts/snackbarContext";
+import { useHookstate } from "@hookstate/core";
+import { deleteWorkout, globalUser } from "../states/user.state";
+import { globalTheme } from "../states/theme.state";
+import { handleOpenSnackbar } from "../states/snackbar.state";
 
 function ProgressPage() {
-	const [user] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
-	const [snackbar, setSnackbar] = useContext(SnackbarContext) as SnackbarStateType;
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
 	const [width] = useWindowSize();
 	const navigate = useNavigate();
 	const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -46,9 +44,9 @@ function ProgressPage() {
 	);
 
 	// Needed to update "Workouts On This Day"
-	useEffect(() => {
-		setWorkoutsOnThisDay(getWorkoutsOnThisDay(selectedDate));
-	}, [selectedDate, user?.workouts]);
+	// useEffect(() => {
+	// 	setWorkoutsOnThisDay(getWorkoutsOnThisDay(selectedDate));
+	// }, [selectedDate, user.value?.workouts]);
 
 	/**
 	 * Returns array of workouts on specified date.
@@ -60,7 +58,7 @@ function ProgressPage() {
 			return [];
 		}
 		return (
-			user?.workouts.filter(
+			user.value?.workouts.filter(
 				(workout: WorkoutType) =>
 					new Date(workout.dateCreated).toDateString() === dateSelected.toDateString()
 			) ?? []
@@ -68,15 +66,14 @@ function ProgressPage() {
 	}
 
 	/**
-	 * Handles opening snackbar with message.
-	 * @param message message to be displayed.
+	 * Handles when user changes date.
+	 * @param newDate
 	 */
-	function handleOpenSnackbar(message: string) {
-		setSnackbar((prev) => ({
-			...prev,
-			open: true,
-			message
-		}));
+	function handleOnDateChange(newDate: Date | null) {
+		if (!newDate) return;
+
+		setSelectedDate(newDate);
+		setWorkoutsOnThisDay(getWorkoutsOnThisDay(newDate));
 	}
 
 	/**
@@ -94,11 +91,8 @@ function ProgressPage() {
 	 */
 	async function handleDeleteWorkoutAfterConfirmation() {
 		try {
-			const firebaseObj = new FirebaseObject();
-			await firebaseObj.deleteWorkout(
-				user as UserType,
-				selectedWorkoutToDelete as WorkoutType
-			);
+			await deleteWorkout(selectedWorkoutToDelete as WorkoutType);
+
 			setOpenConfirmationDialog(false);
 			handleOpenSnackbar(
 				`Workout: ${selectedWorkoutToDelete?.name} has been successfully deleted.`
@@ -148,7 +142,7 @@ function ProgressPage() {
 					sx={{
 						height: "fit-content",
 						width: "350px",
-						background: theme.paperBackground
+						background: theme.paperBackground.value
 					}}
 				>
 					<LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -156,8 +150,9 @@ function ProgressPage() {
 							orientation='portrait'
 							openTo='day'
 							value={selectedDate}
-							onChange={(newDate) => {
-								setSelectedDate(newDate);
+							onChange={(newDate: Date | null) => {
+								handleOnDateChange(newDate);
+								// setSelectedDate(newDate);
 							}}
 							renderInput={(params) => <TextField {...params} />}
 						/>
@@ -169,8 +164,8 @@ function ProgressPage() {
 					sx={{
 						height: "fit-content",
 						width: "350px",
-						background: theme.paperBackground,
-						transition: theme.transition
+						background: theme.paperBackground.value,
+						transition: theme.transition.value
 					}}
 				>
 					<Typography
@@ -200,8 +195,8 @@ function ProgressPage() {
 										>
 											<DeleteIcon
 												sx={{
-													transition: theme.transition,
-													color: theme.text
+													transition: theme.transition.value,
+													color: theme.text.value
 												}}
 											/>
 										</IconButton>
@@ -209,13 +204,12 @@ function ProgressPage() {
 								>
 									<ListItemButton
 										onClick={() => navigate(`/viewWorkout/${workout.id}`)}
-										// onClick={() => navigate(`/editWorkout/${workout.id}`)}
 									>
 										<ListItemText
 											primary={workout.name}
 											sx={{
-												transition: theme.transition,
-												color: theme.text
+												transition: theme.transition.value,
+												color: theme.text.value
 											}}
 										/>
 									</ListItemButton>
