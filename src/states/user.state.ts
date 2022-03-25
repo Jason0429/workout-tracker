@@ -9,27 +9,27 @@ export const globalUser = createState(null as UserType | null);
  * Handles onAuthStateChanged event fires.
  * @param authUser google user.
  */
-export const handleOnAuthStateChanged = async (authUser: User | null) => {
-	const firebaseObj = new FirebaseObject();
-	// If user is signing in.
-	if (authUser) {
-		// If user already exists in database, log in with existing object.
-		if (await firebaseObj.userExistsInDB()) {
-			const existingUser = await firebaseObj.getUser();
-			globalUser.set(existingUser);
-			console.log("Existing user loaded: ", existingUser);
-		} else {
-			// Otherwise, create new user.
-			const newUser = await firebaseObj.createNewUser(authUser);
-			globalUser.set(newUser);
-			console.log("New User loaded: ", newUser);
-		}
-	} else {
-		// If user is signing out.
-		globalUser.set(null);
-		console.log("User signed out.");
-	}
-};
+// export const handleOnAuthStateChanged = async (authUser: User | null) => {
+// 	const firebaseObj = new FirebaseObject();
+// 	// If user is signing in.
+// 	if (authUser) {
+// 		// If user already exists in database, log in with existing object.
+// 		if (await firebaseObj.userExistsInDB()) {
+// 			const existingUser = await firebaseObj.getUser();
+// 			globalUser.set(existingUser);
+// 			console.log("Existing user loaded: ", existingUser);
+// 		} else {
+// 			// Otherwise, create new user.
+// 			const newUser = await firebaseObj.createNewUser(authUser);
+// 			globalUser.set(newUser);
+// 			console.log("New User loaded: ", newUser);
+// 		}
+// 	} else {
+// 		// If user is signing out.
+// 		globalUser.set(null);
+// 		console.log("User signed out.");
+// 	}
+// };
 
 export const addTemplate = async (template: TemplateType) => {
 	if (globalUser.value) {

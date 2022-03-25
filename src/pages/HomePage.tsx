@@ -1,7 +1,7 @@
 import { Stack, styled } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../states/themeState";
+import { globalTheme } from "../states/theme.state";
 
 function HomePage() {
 	const theme = useHookstate(globalTheme);

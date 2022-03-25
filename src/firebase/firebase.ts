@@ -27,25 +27,30 @@ export default class FirebaseObject {
 
 	async getUser(): Promise<UserType> {
 		const currentUser = this.auth.currentUser;
+
 		if (!currentUser) throw new Error("No user signed in.");
+
 		const userObj = (await getDoc(doc(this.db, "users", currentUser.uid))).data() as UserType;
 		return userObj;
 	}
 
-	async createNewUser(authUser: User): Promise<UserType> {
+	async createNewUser(): Promise<UserType> {
+		const currentUser = this.auth.currentUser;
+
+		if (!currentUser) throw new Error("No authenticated user logged in");
+
 		const newUser: UserType = {
-			id: authUser.uid,
-			email: authUser.email,
-			name: authUser.displayName,
-			photoURL: authUser.photoURL,
+			id: currentUser.uid,
+			email: currentUser.email,
+			photoURL: currentUser.photoURL,
+			name: currentUser.displayName,
 			workouts: [],
 			templates: [],
 			exercises
 		};
 
 		// After successful registration, return the new user.
-		const userToBeReturned = await this.setUser(newUser);
-		return userToBeReturned;
+		return await this.setUser(newUser);
 	}
 
 	async signInWithGoogle() {

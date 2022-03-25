@@ -1,8 +1,8 @@
 import { useHookstate } from "@hookstate/core";
 import { Stack, Paper, Typography, List, ListItem, IconButton, ListItemText } from "@mui/material";
 import { ExerciseType } from "../../models";
-import { globalTheme } from "../../states/themeState";
-import { globalUser } from "../../states/userState";
+import { globalTheme } from "../../states/theme.state";
+import { globalUser } from "../../states/user.state";
 import { useStyles } from "../../styles/classes";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";

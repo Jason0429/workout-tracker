@@ -4,8 +4,8 @@ import { ExerciseType } from "../models";
 import AddExerciseDialog from "../components/MyExercises/AddExerciseDialog";
 import EditExerciseDialog from "../components/MyExercises/EditExerciseDialog";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
-import { deleteExercise } from "../states/userState";
-import { handleOpenSnackbar } from "../states/snackbarState";
+import { deleteExercise } from "../states/user.state";
+import { handleOpenSnackbar } from "../states/snackbar.state";
 import ListOfExercises from "../components/MyExercises/ListOfExercises";
 import Controlbar from "../components/MyExercises/Controlbar";
 

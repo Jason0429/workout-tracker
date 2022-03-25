@@ -1,6 +1,6 @@
 import { useHookstate } from "@hookstate/core";
 import { Paper, Stack } from "@mui/material";
-import { globalTheme } from "../../states/themeState";
+import { globalTheme } from "../../states/theme.state";
 import { useStyles } from "../../styles/classes";
 
 interface Props {

@@ -4,8 +4,8 @@ import { useStyles } from "../styles/classes";
 import TemplateStart from "../components/LogWorkout/TemplateStart";
 import { useWindowSize } from "../hooks";
 import { useHookstate } from "@hookstate/core";
-import { globalUser } from "../states/userState";
-import { globalTheme } from "../states/themeState";
+import { globalUser } from "../states/user.state";
+import { globalTheme } from "../states/theme.state";
 import { TemplateType } from "../models";
 
 function LogWorkoutPage() {

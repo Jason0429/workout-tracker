@@ -1,21 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import { getEnabledCategories } from "trace_events";
+import { exercises } from "./data/exercises";
 import { v4 as uuidv4 } from "uuid";
+import { User } from "firebase/auth";
 
 export type TemplateWorkoutType = TemplateType | WorkoutType;
-
-// State types to be used "as" after useContext hooks.
-export type UserStateType = [
-	user: UserType | null,
-	setUser: Dispatch<SetStateAction<UserType | null>>
-];
-
-export type ThemeStateType = [theme: ThemeType, setTheme: Dispatch<SetStateAction<ThemeType>>];
-
-export type SnackbarStateType = [
-	snackbar: SnackbarType,
-	setTheme: Dispatch<SetStateAction<SnackbarType>>
-];
 
 export type SnackbarType = {
 	open: boolean;
@@ -101,4 +89,14 @@ export const Set = (reps?: number, lbs?: number, rpe?: number): SetType => ({
 	reps: reps ?? 0,
 	lbs: lbs ?? 0,
 	rpe: rpe ?? 0
+});
+
+export const NewUser = (): UserType => ({
+	id: "",
+	email: "",
+	photoURL: "",
+	name: "",
+	workouts: [],
+	templates: [],
+	exercises
 });

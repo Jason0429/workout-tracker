@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import {
 	Stack,
 	Paper,
@@ -10,31 +10,25 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExerciseSetRow from "./ExerciseSetRow";
-import { ExerciseType, ThemeStateType } from "../../models";
+import { ExerciseType } from "../../models";
 import { useStyles } from "../../styles/classes";
 import Spacer from "../Global/Spacer";
-import ThemeContext from "../../contexts/themeContext";
-// import { useAppSelector } from "../../app/hooks";
+import { useHookstate } from "@hookstate/core";
+import { globalTheme } from "../../states/theme.state";
+import { handleAddSet, handleDeleteExercise } from "../../states/TemplatePage.state";
 
 type Props = {
 	exercise: ExerciseType;
 	exerciseIdx: number;
-	handleAddSet: (exerciseIdx: number) => void;
-	handleDeleteSet: (exerciseIdx: number, setIdx: number) => void;
-	handleDeleteExercise: (exerciseIdx: number) => void;
-	handleEditSetDetail: (event: any, exerciseIdx: number, setIdx: number) => void;
+	// handleAddSet: (exerciseIdx: number) => void;
+	// handleDeleteSet: (exerciseIdx: number, setIdx: number) => void;
+	// handleDeleteExercise: (exerciseIdx: number) => void;
+	// handleEditSetDetail: (event: any, exerciseIdx: number, setIdx: number) => void;
 };
 
-function ExerciseTemplate({
-	exercise,
-	exerciseIdx,
-	handleAddSet,
-	handleDeleteSet,
-	handleDeleteExercise,
-	handleEditSetDetail
-}: Props) {
+function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 	const classes = useStyles();
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
+	const theme = useHookstate(globalTheme);
 	const [expanded, setExpanded] = useState(true);
 
 	return (
@@ -66,17 +60,17 @@ function ExerciseTemplate({
 							<KeyboardArrowDownIcon
 								sx={{
 									// width: "100%",
-									color: theme.text,
+									color: theme.text.value,
 									transform: `rotate(${expanded ? "0deg" : "180deg"})`,
-									transition: theme.transition
+									transition: theme.transition.value
 								}}
 							/>
 						</IconButton>
 						<div
 							className={classes.exerciseTemplateHeader}
 							style={{
-								color: theme.text,
-								transition: theme.transition
+								color: theme.text.value,
+								transition: theme.transition.value
 							}}
 						>
 							{exercise.name}
@@ -102,8 +96,8 @@ function ExerciseTemplate({
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText,
-									transition: theme.transition
+									color: theme.detailText.value,
+									transition: theme.transition.value
 								}}
 							>
 								Set
@@ -111,8 +105,8 @@ function ExerciseTemplate({
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText,
-									transition: theme.transition
+									color: theme.detailText.value,
+									transition: theme.transition.value
 								}}
 							>
 								Reps
@@ -120,8 +114,8 @@ function ExerciseTemplate({
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText,
-									transition: theme.transition
+									color: theme.detailText.value,
+									transition: theme.transition.value
 								}}
 							>
 								lbs.
@@ -129,8 +123,8 @@ function ExerciseTemplate({
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText,
-									transition: theme.transition
+									color: theme.detailText.value,
+									transition: theme.transition.value
 								}}
 							>
 								RPE
@@ -145,8 +139,8 @@ function ExerciseTemplate({
 								set={set}
 								exerciseIdx={exerciseIdx}
 								setIdx={idx}
-								handleDeleteSet={handleDeleteSet}
-								handleEditSetDetail={handleEditSetDetail}
+								// handleDeleteSet={handleDeleteSet}
+								// handleEditSetDetail={handleEditSetDetail}
 							/>
 						))}
 

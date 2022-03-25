@@ -1,5 +1,5 @@
 // React
-import { useEffect, useState, FC } from "react";
+import { useEffect, useState } from "react";
 
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -24,28 +24,20 @@ import MyExercisesPage from "./pages/MyExercisesPage";
 import LogWorkoutPage from "./pages/LogWorkoutPage";
 import TemplatePage from "./pages/TemplatePage";
 
-// Contexts
-import UserContext from "./contexts/userContext";
-import ThemeContext from "./contexts/themeContext";
-import { themes } from "./styles/theme";
-import SnackbarContext from "./contexts/snackbarContext";
-
-import { SnackbarType, ThemeType, UserType } from "./models";
+import { UserType } from "./models";
 import ViewWorkoutPage from "./pages/ViewWorkoutPage";
 import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "./states/themeState";
-import { globalSnackbar, handleCloseSnackbar } from "./states/snackbarState";
-import { globalUser, handleOnAuthStateChanged } from "./states/userState";
+import { globalTheme } from "./states/theme.state";
+import { globalSnackbar, handleCloseSnackbar } from "./states/snackbar.state";
+import { globalUser } from "./states/user.state";
 import ProtectedRoute from "./components/Global/ProtectedRoute";
+import LoadingPage from "./pages/LoadingPage";
 
-export default function App(): JSX.Element {
-	// const [user, setUser] = useState(null as UserType | null);
-	// const [theme, setTheme] = useState(themes[themeMode] as ThemeType);
-	// const [snackbar, setSnackbar] = useState({ open: false, message: "" } as SnackbarType);
+export default function App() {
+	const user = useHookstate(globalUser);
 	const theme = useHookstate(globalTheme);
 	const snackbar = useHookstate(globalSnackbar);
-	const user = useHookstate(globalUser);
-	const [initializing, setInitializing] = useState(true);
+	const [loading, setLoading] = useState(true);
 	const classes = useStyles();
 	const firebaseObj = new FirebaseObject();
 
@@ -53,11 +45,22 @@ export default function App(): JSX.Element {
 	 * Handles signing in and out of Google.
 	 */
 	useEffect(() => {
-		const unsub = onAuthStateChanged(firebaseObj.auth, async (authUser: User | null) => {
-			handleOnAuthStateChanged(authUser);
+		const unsub = firebaseObj.auth.onAuthStateChanged(async (userObj: User | null) => {
+			if (userObj) {
+				console.log("Signing in");
+				if (await firebaseObj.userExistsInDB()) {
+					console.log("User exists in DB");
+					user.set(await firebaseObj.getUser());
+				} else {
+					console.log("Creating new user in DB");
+					user.set(await firebaseObj.createNewUser());
+				}
+			} else {
+				console.log("Logged out");
+				user.set(null);
+			}
 
-			// Disable loading screen
-			if (initializing) setInitializing(false);
+			if (loading) setLoading(false);
 		});
 
 		return () => unsub();
@@ -67,31 +70,20 @@ export default function App(): JSX.Element {
 	 * Updates every time user was modified in database.
 	 */
 	useEffect(() => {
+		if (!user.value) return;
+
 		// If user is logged in.
-		if (user.value) {
-			const userDoc = doc(firebaseObj.db, "users", user.value.id);
-			const unsub = onSnapshot(userDoc, (doc) => {
-				user.set(doc.data() as UserType);
-				console.log("User modified: ", doc.data() as UserType);
-			});
+		const userDoc = doc(firebaseObj.db, "users", user.value.id);
+		const unsub = onSnapshot(userDoc, (doc) => {
+			const userObj = doc.data() as UserType;
+			user.set(userObj);
+			console.log("(user) onSnapshot: ", userObj);
+		});
 
-			return () => unsub();
-		}
-	}, [initializing]); // DO NOT REMOVE initializing dependency
+		return () => unsub();
+	}, [loading]); // DO NOT REMOVE loading dependency
 
-	if (initializing)
-		return (
-			<div
-				className={classes.mainContainer}
-				style={{
-					background: theme.value.background,
-					transition: theme.value.transition,
-					color: theme.value.text
-				}}
-			>
-				{"Loading..."}
-			</div>
-		);
+	if (loading) return <LoadingPage />;
 
 	return (
 		<BrowserRouter basename='/'>
