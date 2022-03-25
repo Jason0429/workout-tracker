@@ -1,21 +1,23 @@
 import { Stack, Typography, IconButton, Paper, Divider, Tooltip } from "@mui/material";
 import { useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import UserContext from "../contexts/userContext";
-import ThemeContext from "../contexts/themeContext";
+
 import EditIcon from "@mui/icons-material/Edit";
-import { ExerciseType, ThemeStateType, UserStateType, WorkoutType } from "../models";
+import { ExerciseType, WorkoutType } from "../models";
 import Spacer from "../components/Global/Spacer";
+import { useHookstate } from "@hookstate/core";
+import { globalUser } from "../states/user.state";
+import { globalTheme } from "../states/theme.state";
 
 function ViewWorkoutPage() {
 	const { id } = useParams();
+	const user = useHookstate(globalUser);
+	const theme = useHookstate(globalTheme);
 	const navigate = useNavigate();
-	const [user] = useContext(UserContext) as UserStateType;
-	const [theme] = useContext(ThemeContext) as ThemeStateType;
 	const workout = getWorkout();
 
 	function getWorkout(): WorkoutType | undefined {
-		return user?.workouts.find((w) => w.id === id);
+		return user.value?.workouts.find((w: WorkoutType) => w.id === id);
 	}
 
 	// If workout cannot be found.
@@ -56,8 +58,8 @@ function ViewWorkoutPage() {
 					<Typography
 						variant='h6'
 						sx={{
-							transition: theme.transition,
-							color: theme.text
+							transition: theme.transition.value,
+							color: theme.text.value
 						}}
 					>
 						{workout?.name}
@@ -70,7 +72,9 @@ function ViewWorkoutPage() {
 							size='small'
 							onClick={() => navigate(`/editWorkout/${id}`)}
 						>
-							<EditIcon sx={{ transition: theme.transition, color: theme.text }} />
+							<EditIcon
+								sx={{ transition: theme.transition.value, color: theme.text.value }}
+							/>
 						</IconButton>
 					</Tooltip>
 				</Stack>
@@ -85,15 +89,15 @@ function ViewWorkoutPage() {
 							margin: "5px 0",
 							padding: "10px",
 							boxSizing: "border-box",
-							background: theme.paperBackground,
-							transition: theme.transition
+							background: theme.paperBackground.value,
+							transition: theme.transition.value
 						}}
 					>
 						<Typography
 							variant='body1'
 							sx={{
-								transition: theme.transition,
-								color: theme.text
+								transition: theme.transition.value,
+								color: theme.text.value
 							}}
 						>
 							{e?.name}
@@ -105,8 +109,8 @@ function ViewWorkoutPage() {
 							sx={{
 								justifyContent: "space-between",
 								alignItems: "center",
-								transition: theme.transition,
-								color: theme.text
+								transition: theme.transition.value,
+								color: theme.text.value
 							}}
 						>
 							<Stack
@@ -161,8 +165,8 @@ function ViewWorkoutPage() {
 								sx={{
 									justifyContent: "space-between",
 									alignItems: "center",
-									transition: theme.transition,
-									color: theme.text
+									transition: theme.transition.value,
+									color: theme.text.value
 								}}
 							>
 								<Stack

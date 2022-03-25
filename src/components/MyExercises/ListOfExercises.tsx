@@ -37,8 +37,8 @@ function ListOfExercises({
 				variant='outlined'
 				sx={{
 					width: "100%",
-					background: theme.value.paperBackground,
-					transition: theme.value.transition
+					background: theme.paperBackground.value,
+					transition: theme.transition.value
 				}}
 			>
 				<Paper
@@ -47,15 +47,15 @@ function ListOfExercises({
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						background: theme.value.paperBackground,
-						transition: theme.value.transition
+						background: theme.paperBackground.value,
+						transition: theme.transition.value
 					}}
 				>
 					<Typography
 						variant='h6'
 						sx={{
-							transition: theme.value.transition,
-							color: theme.value.text
+							transition: theme.transition.value,
+							color: theme.text.value
 						}}
 					>
 						My Exercises
@@ -66,8 +66,8 @@ function ListOfExercises({
 					variant='outlined'
 					sx={{
 						padding: "15px",
-						background: theme.value.background,
-						transition: theme.value.transition
+						background: theme.background.value,
+						transition: theme.transition.value
 					}}
 				>
 					<input
@@ -76,9 +76,9 @@ function ListOfExercises({
 						value={searchedExercise}
 						onChange={(e) => setSearchedExercise(e.target.value)}
 						style={{
-							background: theme.value.paperBackground,
-							transition: theme.value.transition,
-							color: theme.value.text
+							background: theme.paperBackground.value,
+							transition: theme.transition.value,
+							color: theme.text.value
 						}}
 					/>
 				</Paper>
@@ -104,8 +104,8 @@ function ListOfExercises({
 							<ListItem
 								divider
 								sx={{
-									background: theme.value.paperBackground,
-									transition: theme.value.transition
+									background: theme.paperBackground.value,
+									transition: theme.transition.value
 								}}
 								key={idx}
 								secondaryAction={
@@ -118,8 +118,8 @@ function ListOfExercises({
 										>
 											<EditIcon
 												sx={{
-													transition: theme.value.transition,
-													color: theme.value.text
+													transition: theme.transition.value,
+													color: theme.text.value
 												}}
 											/>
 										</IconButton>
@@ -133,8 +133,8 @@ function ListOfExercises({
 										>
 											<DeleteIcon
 												sx={{
-													transition: theme.value.transition,
-													color: theme.value.text
+													transition: theme.transition.value,
+													color: theme.text.value
 												}}
 											/>
 										</IconButton>
@@ -144,8 +144,8 @@ function ListOfExercises({
 								<ListItemText
 									primary={exercise?.name}
 									sx={{
-										transition: theme.value.transition,
-										color: theme.value.text
+										transition: theme.transition.value,
+										color: theme.text.value
 									}}
 								/>
 							</ListItem>
