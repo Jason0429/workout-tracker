@@ -11,20 +11,13 @@ type ProgressPageState = {
 };
 
 const initialState: ProgressPageState = {
-	selectedDate: new Date(),
+	selectedDate: null,
 	openConfirmationDialog: false,
 	workoutsOnThisDay: [],
 	workoutToBeDeleted: null
 };
 
 export const globalProgressPage = createState(initialState);
-
-/**
- * Sets state back to default.
- */
-export const init = () => {
-	globalProgressPage.set(initialState);
-};
 
 /**
  * Handles opening confirmation dialog.
@@ -62,18 +55,24 @@ export const getWorkoutsOnThisDay = (user: UserType, dateSelected: Date | null) 
 export const handleOnDateChange = (user: UserType, newDate: Date | null) => {
 	if (!newDate) return;
 
-	globalProgressPage.selectedDate.set(newDate);
-	globalProgressPage.workoutsOnThisDay.set(getWorkoutsOnThisDay(user, newDate));
+	globalProgressPage.set((prev) => ({
+		...prev,
+		selectedDate: newDate,
+		workoutsOnThisDay: getWorkoutsOnThisDay(user, newDate)
+	}));
 };
 
 /**
  * Handles deleting workout.
  * Will open confirmation dialog.
- * @param workoutToBeDeleted
+ * @param workoutToDelete
  */
-export const handleDeleteWorkoutBeforeConfirmation = (workoutToBeDeleted: WorkoutType) => {
-	globalProgressPage.workoutToBeDeleted.set(workoutToBeDeleted);
-	handleOpenConfirmationDialog();
+export const handleDeleteWorkoutBeforeConfirmation = (workoutToDelete: WorkoutType) => {
+	globalProgressPage.set((prev) => ({
+		...prev,
+		workoutToBeDeleted: workoutToDelete,
+		openConfirmationDialog: true
+	}));
 };
 
 /**
@@ -82,14 +81,14 @@ export const handleDeleteWorkoutBeforeConfirmation = (workoutToBeDeleted: Workou
 export const handleDeleteWorkoutAfterConfirmation = async () => {
 	try {
 		await deleteWorkout(globalProgressPage.workoutToBeDeleted.value as WorkoutType);
-		handleCloseConfirmationDialog();
+		globalProgressPage.openConfirmationDialog.set(false);
 
-		handleOpenSnackbar(
-			`Workout: ${globalProgressPage.workoutToBeDeleted.value?.name} has been successfully deleted.`
-		);
+		// handleOpenSnackbar(
+		// 	`Workout: ${globalProgressPage.workoutToBeDeleted.value?.name} has been successfully deleted.`
+		// );
 	} catch (e) {
-		handleOpenSnackbar(
-			`Something went wrong. Workout: ${globalProgressPage.workoutToBeDeleted.value?.name} could not be deleted.`
-		);
+		// handleOpenSnackbar(
+		// 	`Something went wrong. Workout: ${globalProgressPage.workoutToBeDeleted.value?.name} could not be deleted.`
+		// );
 	}
 };

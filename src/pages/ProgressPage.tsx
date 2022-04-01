@@ -8,21 +8,31 @@ import { useHookstate } from "@hookstate/core";
 import ProgressCalendar from "../components/Progress/ProgressCalendar";
 import ProgressWorkoutsList from "../components/Progress/ProgressWorkoutsList";
 import {
+	getWorkoutsOnThisDay,
 	globalProgressPage,
 	handleCloseConfirmationDialog,
 	handleDeleteWorkoutAfterConfirmation
 } from "../states/ProgressPage.state";
 import { useEffect, useState } from "react";
-import { init } from "../states/ProgressPage.state";
+import { globalUser } from "../states/user.state";
+import { UserType } from "../models";
 
 function ProgressPage() {
 	const [loading, setLoading] = useState(true);
 	const [width] = useWindowSize();
 	const progressPageState = useHookstate(globalProgressPage);
+	const { openConfirmationDialog, workoutToBeDeleted } = progressPageState.get();
+	const user = useHookstate(globalUser);
 
 	useEffect(() => {
 		if (loading) {
-			init();
+			const currDate = new Date();
+			progressPageState.set({
+				selectedDate: currDate,
+				openConfirmationDialog: false,
+				workoutsOnThisDay: getWorkoutsOnThisDay(user.value as UserType, currDate),
+				workoutToBeDeleted: null
+			});
 			setLoading(false);
 		}
 	}, []);
@@ -30,17 +40,15 @@ function ProgressPage() {
 	return (
 		<>
 			{/* Delete Workout Confirmation Dialog */}
-			{progressPageState.workoutToBeDeleted.value && (
+			{workoutToBeDeleted && (
 				<ConfirmationDialog
-					open={progressPageState.openConfirmationDialog.value}
+					open={openConfirmationDialog}
 					onClose={handleCloseConfirmationDialog}
 					title='Delete Workout?'
 					message={
 						<>
 							Are you sure you want to delete{" "}
-							<span style={{ fontWeight: "bold" }}>
-								{progressPageState.workoutToBeDeleted.value?.name}
-							</span>
+							<span style={{ fontWeight: "bold" }}>{workoutToBeDeleted.name}</span>
 						</>
 					}
 					yesFunction={handleDeleteWorkoutAfterConfirmation}
@@ -61,6 +69,7 @@ function ProgressPage() {
 			>
 				{/* Progress Calendar */}
 				<ProgressCalendar />
+
 				{/* Progress Workouts List */}
 				<ProgressWorkoutsList />
 			</Stack>

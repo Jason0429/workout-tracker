@@ -9,9 +9,12 @@ import { UserType } from "../../models";
 import "react-calendar/dist/Calendar.css";
 
 function ProgressCalendar() {
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
+	const user = useHookstate(globalUser).get();
+	const theme = useHookstate(globalTheme).get();
 	const progressPageState = useHookstate(globalProgressPage);
+	const { selectedDate } = progressPageState.get();
+
+	// console.log(selectedDate?.toString);
 
 	return (
 		<Paper
@@ -19,16 +22,16 @@ function ProgressCalendar() {
 			sx={{
 				height: "fit-content",
 				width: "350px",
-				background: theme.paperBackground.value
+				background: theme.paperBackground
 			}}
 		>
 			<LocalizationProvider dateAdapter={AdapterDateFns}>
 				<StaticDatePicker
 					orientation='portrait'
 					openTo='day'
-					value={progressPageState.selectedDate.value}
+					value={new Date()}
 					onChange={(newDate: Date | null) =>
-						handleOnDateChange(user.value as UserType, newDate)
+						handleOnDateChange(user as UserType, newDate)
 					}
 					renderInput={(params) => <TextField {...params} />}
 				/>

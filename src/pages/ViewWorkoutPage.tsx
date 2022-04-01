@@ -210,10 +210,6 @@ function ViewWorkoutPage() {
 						))}
 					</Paper>
 				))}
-
-				{/* Exercise name */}
-
-				{/* Set #, Reps, lbs, rpe */}
 			</Stack>
 		</Stack>
 	);

@@ -32,7 +32,6 @@ function SignInPage() {
 			}}
 		>
 			<GoogleSignInButton onClick={handleSignInUser} />
-			{/* <GoogleSignOutButton onClick={handleSignOutUser} /> */}
 		</Stack>
 	);
 }
