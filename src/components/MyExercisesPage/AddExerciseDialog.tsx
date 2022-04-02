@@ -1,5 +1,5 @@
 // React
-import React, { useState } from "react";
+import { useState } from "react";
 
 // Material
 import {
@@ -13,11 +13,10 @@ import {
 } from "@mui/material";
 import Chip from "@mui/material/Chip";
 
-// Models
-import { Exercise, ExerciseType } from "../../models";
-import { useHookstate } from "@hookstate/core";
-import { addCustomExercise, globalUser } from "../../states/user.state";
-import { handleOpenSnackbar } from "../../states/snackbar.state";
+import { ExerciseType, Exercise, addExercise } from "../../firebase/Exercise";
+import { useSnackbarState } from "../../states/SnackbarState";
+import { useUserState } from "../../states/UserState";
+import { UserType } from "../../firebase/User";
 
 interface Props {
 	open: boolean;
@@ -25,35 +24,36 @@ interface Props {
 }
 
 function AddExerciseDialog({ open, onClose }: Props) {
-	const user = useHookstate(globalUser);
+	const user = useUserState() as UserType;
+	const snackbar = useSnackbarState();
 	const [newExercise, setNewExercise] = useState(Exercise("", []));
 	const [category, setCategory] = useState("");
 
 	/**
 	 * Handles closing dialog.
 	 */
-	function handleClose() {
+	const handleClose = () => {
 		setNewExercise(Exercise("", []));
 		setCategory("");
 		onClose();
-	}
+	};
 
 	/**
 	 * Handles change in new exercise name.
 	 * @param {Event} e the TextField event.
 	 */
-	function handleExerciseName(e: React.ChangeEvent<any>) {
-		setNewExercise((exercise) => ({
+	const handleExerciseName = (e: React.ChangeEvent<any>) => {
+		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
 			name: e.target.value
 		}));
-	}
+	};
 
 	/**
 	 * Handles adding new category to exercise.
 	 * @param {string} category the new category to be added to exercise.
 	 */
-	function handleAddCategory(category: string) {
+	const handleAddCategory = (category: string) => {
 		if (category === "") return;
 
 		setNewExercise((exercise: ExerciseType) => ({
@@ -62,27 +62,27 @@ function AddExerciseDialog({ open, onClose }: Props) {
 		}));
 
 		setCategory("");
-	}
+	};
 
 	/**
 	 * Handles deleting category from exercise.
 	 * - Takes index instead of category name to prevent deleting duplicates.
 	 * @param {number} idx the index of the category to be deleted from exercise.
 	 */
-	function handleDeleteCategory(idx: number) {
-		setNewExercise((exercise) => ({
+	const handleDeleteCategory = (idx: number) => {
+		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
 			categories: exercise["categories"].filter((_, i: number) => i !== idx)
 		}));
-	}
+	};
 
 	/**
 	 * Handles adding custom exercise to user's list of exercises.
 	 * @param customExercise custom exercise to be added.
 	 */
-	async function handleAddCustomExercise() {
+	const handleAddCustomExercise = async () => {
 		if (newExercise.name.trim() === "") {
-			handleOpenSnackbar("Please enter an exercise name");
+			snackbar.handleOpenSnackbar("Please enter an exercise name");
 			return;
 		}
 
@@ -92,25 +92,27 @@ function AddExerciseDialog({ open, onClose }: Props) {
 		};
 
 		// Check if exercise with this name already exists.
-		if (user.value?.exercises.some((e) => e.name === exerciseToBeAdded?.name)) {
-			handleOpenSnackbar(`Exercise: ${exerciseToBeAdded?.name} already exists.`);
+		if (user.exercises.some((e) => e.name === exerciseToBeAdded.name)) {
+			snackbar.handleOpenSnackbar(`Exercise: ${exerciseToBeAdded.name} already exists.`);
 			return;
 		}
 
 		try {
-			await addCustomExercise(exerciseToBeAdded as ExerciseType);
+			await addExercise(exerciseToBeAdded as ExerciseType);
 
-			handleOpenSnackbar(`Exercise: ${exerciseToBeAdded?.name} has been successfully added.`);
+			snackbar.handleOpenSnackbar(
+				`Exercise: ${exerciseToBeAdded.name} has been successfully added.`
+			);
 		} catch (e) {
-			handleOpenSnackbar(
-				`Something went wrong. Exercise: ${exerciseToBeAdded?.name} could not be added added.`
+			snackbar.handleOpenSnackbar(
+				`Something went wrong. Exercise: ${exerciseToBeAdded.name} could not be added added.`
 			);
 		}
 
 		// Close the add exercise dialog.
 		// Resets the new exercise.
 		handleClose();
-	}
+	};
 
 	return (
 		<Dialog open={open} onClose={handleClose} fullWidth>

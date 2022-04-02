@@ -1,6 +1,6 @@
 import { useHookstate } from "@hookstate/core";
 import { Navigate } from "react-router-dom";
-import { globalUser } from "../../states/user.state";
+import { globalUser } from "../../states/UserState";
 
 interface Props {
 	element: any;

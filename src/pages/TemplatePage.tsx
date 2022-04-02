@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStyles } from "../styles/classes";
-import { Template, Workout, TemplateType, WorkoutType, TemplateWorkoutType } from "../models";
-import ExercisesDialog from "../components/Template/ExercisesDialog";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../states/theme.state";
-import { handleOpenSnackbar } from "../states/snackbar.state";
-import { globalTemplatePage, init } from "../states/TemplatePage.state";
-import WorkoutDetailsSection from "../components/Template/WorkoutDetailsSection";
-import Controlbar from "../components/Template/Controlbar";
+import ExercisesDialog from "../components/TemplatePage/ExercisesDialog";
+import WorkoutDetailsSection from "../components/TemplatePage/WorkoutDetailsSection";
+import Controlbar from "../components/TemplatePage/Controlbar";
 import LoadingPage from "./LoadingPage";
-import { globalUser } from "../states/user.state";
+import { useUserState } from "../states/UserState";
+import { useThemeState } from "../states/ThemeState";
+import { useTemplatePageState } from "../components/TemplatePage/TemplatePageState";
+import { TemplateWorkoutType, TemplateType, Template } from "../firebase/Template";
+import { UserType } from "../firebase/User";
+import { WorkoutType, Workout } from "../firebase/Workout";
+import { useSnackbarState } from "../states/SnackbarState";
 
 interface Props {
 	mode: "create-template" | "edit-template" | "create-workout" | "edit-workout" | "log-workout";
@@ -18,11 +19,12 @@ interface Props {
 
 function TemplatePage({ mode }: Props) {
 	const { id } = useParams();
+	const user = useUserState() as UserType;
+	const theme = useThemeState();
+	const snackbar = useSnackbarState();
+	const templatePageState = useTemplatePageState();
 	const navigate = useNavigate();
 	const classes = useStyles();
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
-	const templatePageState = useHookstate(globalTemplatePage);
 	const [loading, setLoading] = useState(true);
 
 	/**
@@ -31,9 +33,7 @@ function TemplatePage({ mode }: Props) {
 	useEffect(() => {
 		if (loading) {
 			// Change to default every time this page loads.
-			init();
-
-			templatePageState.set({
+			templatePageState.init({
 				template: getTemplateOrWorkout(),
 				title: getTitle(),
 				mode,
@@ -60,16 +60,16 @@ function TemplatePage({ mode }: Props) {
 	 * Gets the proper template or workout.
 	 */
 	const getTemplateOrWorkout = (): TemplateWorkoutType => {
-		const templateExists = user.value?.templates.some((t) => t.id === id);
-		const workoutExists = user.value?.workouts.some((w) => w.id === id);
+		const templateExists = user.templates.some((t) => t.id === id);
+		const workoutExists = user.workouts.some((w) => w.id === id);
 
 		const editTemplate = () => {
 			if (!templateExists) {
-				handleOpenSnackbar("Could not find template.");
+				snackbar.handleOpenSnackbar("Could not find template.");
 				navigate("/createTemplate");
 			}
 
-			const findTemplate = user.value?.templates.find(
+			const findTemplate = user.templates.find(
 				(template: TemplateType) => template.id === id
 			)!;
 
@@ -78,24 +78,22 @@ function TemplatePage({ mode }: Props) {
 
 		const editWorkout = () => {
 			if (!workoutExists) {
-				handleOpenSnackbar("Could not find workout");
+				snackbar.handleOpenSnackbar("Could not find workout");
 				navigate("/createTemplate");
 			}
 
-			const findWorkout = user.value?.workouts.find(
-				(workout: WorkoutType) => workout.id === id
-			)!;
+			const findWorkout = user.workouts.find((workout: WorkoutType) => workout.id === id)!;
 
 			return findWorkout;
 		};
 
 		const logWorkout = () => {
 			if (!templateExists) {
-				handleOpenSnackbar("Could not find template.");
+				snackbar.handleOpenSnackbar("Could not find template.");
 				navigate("/createTemplate");
 			}
 
-			const workoutTemplate = user.value?.templates.find((t: TemplateType) => t.id === id)!;
+			const workoutTemplate = user.templates.find((t: TemplateType) => t.id === id)!;
 
 			return Workout(workoutTemplate.name, workoutTemplate.exercises);
 		};
@@ -123,8 +121,8 @@ function TemplatePage({ mode }: Props) {
 		<div
 			className={classes.mainContainer}
 			style={{
-				background: theme.value.background,
-				transition: theme.value.transition
+				background: theme.background,
+				transition: theme.transition
 			}}
 		>
 			{/* Exercises Dialog */}

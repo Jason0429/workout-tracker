@@ -1,15 +1,16 @@
 import { useState } from "react";
 
-import { ExerciseType } from "../models";
-import AddExerciseDialog from "../components/MyExercises/AddExerciseDialog";
-import EditExerciseDialog from "../components/MyExercises/EditExerciseDialog";
+import AddExerciseDialog from "../components/MyExercisesPage/AddExerciseDialog";
+import EditExerciseDialog from "../components/MyExercisesPage/EditExerciseDialog";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
-import { deleteExercise } from "../states/user.state";
-import { handleOpenSnackbar } from "../states/snackbar.state";
-import ListOfExercises from "../components/MyExercises/ListOfExercises";
-import Controlbar from "../components/MyExercises/Controlbar";
+import ListOfExercises from "../components/MyExercisesPage/ListOfExercises";
+import Controlbar from "../components/MyExercisesPage/Controlbar";
+import { deleteExercise, ExerciseType } from "../firebase/Exercise";
+import { useSnackbarState } from "../states/SnackbarState";
 
 function MyExercisesPage() {
+	const snackbar = useSnackbarState();
+
 	// Filters available exercises to search preference.
 	const [searchedExercise, setSearchedExercise] = useState("");
 
@@ -64,7 +65,7 @@ function MyExercisesPage() {
 	 */
 	async function handleDeleteExerciseAfterConfirmation() {
 		try {
-			await deleteExercise(selectedExerciseToDelete as ExerciseType);
+			await deleteExercise(selectedExerciseToDelete!.id);
 
 			// Close confirmation dialog.
 			setOpenConfirmationDialog(false);
@@ -72,11 +73,11 @@ function MyExercisesPage() {
 			// Reset exercise to be deleted.
 			setSelectedExerciseToDelete(null);
 
-			handleOpenSnackbar(
+			snackbar.handleOpenSnackbar(
 				`Exercise: ${selectedExerciseToDelete?.name} as been successfully deleted.`
 			);
 		} catch (e) {
-			handleOpenSnackbar(
+			snackbar.handleOpenSnackbar(
 				`Something went wrong. Exercise: ${selectedExerciseToDelete?.name} could not be deleted.`
 			);
 		}

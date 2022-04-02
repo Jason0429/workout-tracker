@@ -1,10 +1,9 @@
 import { Input, Stack } from "@mui/material";
-import { SetType } from "../../models";
 import { useStyles } from "../../styles/classes";
 import CloseIcon from "@mui/icons-material/Close";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
-import { handleDeleteSet, handleEditSetDetail } from "../../states/TemplatePage.state";
+import { Set, SetType } from "../../firebase/Set";
+import { useTemplatePageState } from "./TemplatePageState";
+import { useThemeState } from "../../states/ThemeState";
 
 type Props = {
 	exerciseIdx: number;
@@ -13,8 +12,9 @@ type Props = {
 };
 
 function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
+	const theme = useThemeState();
+	const templatePageState = useTemplatePageState();
 	const classes = useStyles();
-	const theme = useHookstate(globalTheme);
 
 	return (
 		<>
@@ -22,8 +22,8 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
 				<div
 					className={classes.setNumber}
 					style={{
-						color: theme.text.value,
-						transition: theme.transition.value
+						color: theme.text,
+						transition: theme.transition
 					}}
 				>
 					{setIdx + 1}
@@ -34,10 +34,10 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
 					type='number'
 					value={set?.reps}
 					inputProps={{ min: 0 }}
-					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
+					onChange={(e) => templatePageState.handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text.value,
-						transition: theme.transition.value
+						color: theme.text,
+						transition: theme.transition
 					}}
 				/>
 				<Input
@@ -46,10 +46,10 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
 					type='number'
 					value={set?.lbs}
 					inputProps={{ min: 0 }}
-					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
+					onChange={(e) => templatePageState.handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text.value,
-						transition: theme.transition.value
+						color: theme.text,
+						transition: theme.transition
 					}}
 				/>
 				<Input
@@ -58,15 +58,15 @@ function ExerciseSetRow({ exerciseIdx, setIdx, set }: Props) {
 					type='number'
 					value={set?.rpe}
 					inputProps={{ min: 0, max: 10 }}
-					onChange={(e) => handleEditSetDetail(e, exerciseIdx, setIdx)}
+					onChange={(e) => templatePageState.handleEditSetDetail(e, exerciseIdx, setIdx)}
 					sx={{
-						color: theme.text.value,
-						transition: theme.transition.value
+						color: theme.text,
+						transition: theme.transition
 					}}
 				/>
 				<div
 					className={classes.closeIconContainer}
-					onClick={() => handleDeleteSet(exerciseIdx, setIdx)}
+					onClick={() => templatePageState.handleDeleteSet(exerciseIdx, setIdx)}
 				>
 					<CloseIcon className={classes.closeIcon} />
 				</div>

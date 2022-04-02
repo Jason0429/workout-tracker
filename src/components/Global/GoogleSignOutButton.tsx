@@ -1,5 +1,5 @@
 import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
+import { globalTheme } from "../../states/ThemeState";
 import { Stack, Typography, Paper } from "@mui/material";
 
 // Images

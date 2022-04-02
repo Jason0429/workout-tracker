@@ -12,9 +12,8 @@ import {
 	Stack
 } from "@mui/material";
 import Chip from "@mui/material/Chip";
-import { ExerciseType } from "../../models";
-import { updateExercise } from "../../states/user.state";
-import { handleOpenSnackbar } from "../../states/snackbar.state";
+import { ExerciseType, updateExercise } from "../../firebase/Exercise";
+import { useSnackbarState } from "../../states/SnackbarState";
 
 interface Props {
 	open: boolean;
@@ -22,6 +21,7 @@ interface Props {
 	exercise: ExerciseType;
 }
 function EditExerciseDialog({ open, onClose, exercise }: Props) {
+	const snackbar = useSnackbarState();
 	const [newExercise, setNewExercise] = useState({ ...exercise });
 	const [category, setCategory] = useState("");
 
@@ -92,10 +92,12 @@ function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	async function handleUpdateExercise(updatedExercise: ExerciseType) {
 		try {
 			await updateExercise(updatedExercise as ExerciseType);
-			handleOpenSnackbar(`Exercise: ${updatedExercise?.name} has been successfully updated.`);
+			snackbar.handleOpenSnackbar(
+				`Exercise: ${updatedExercise.name} has been successfully updated.`
+			);
 		} catch (e) {
-			handleOpenSnackbar(
-				`Something went wrong. Exercise: ${updatedExercise?.name} could not be updated.`
+			snackbar.handleOpenSnackbar(
+				`Something went wrong. Exercise: ${updatedExercise.name} could not be updated.`
 			);
 		}
 	}

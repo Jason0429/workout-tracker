@@ -1,14 +1,13 @@
 import { Stack, Typography } from "@mui/material";
-import { globalTheme } from "../../states/theme.state";
-import { globalTemplatePage } from "../../states/TemplatePage.state";
-import { useHookstate } from "@hookstate/core";
+import { useThemeState } from "../../states/ThemeState";
 import { useStyles } from "../../styles/classes";
 import ExerciseTemplate from "./ExerciseTemplate";
+import { useTemplatePageState } from "./TemplatePageState";
 
 function WorkoutDetailsSection() {
 	const classes = useStyles();
-	const theme = useHookstate(globalTheme);
-	const templatePageState = useHookstate(globalTemplatePage);
+	const theme = useThemeState();
+	const templatePageState = useTemplatePageState();
 
 	return (
 		<Stack direction='column' spacing={2} style={{ width: "350px", height: "100%" }}>
@@ -17,35 +16,30 @@ function WorkoutDetailsSection() {
 				textAlign='center'
 				sx={{
 					textAlign: "center",
-					color: theme.text.value,
-					transition: theme.transition.value
+					color: theme.text,
+					transition: theme.transition
 				}}
 			>
 				{/* Title of the page */}
-				{templatePageState.title.value}
+				{templatePageState.title}
 			</Typography>
 			<Stack direction='column' spacing={3} alignItems='center'>
 				{/* Template Name Input */}
 				<input
 					placeholder='Workout Name'
 					className={classes.roundInputField}
-					value={templatePageState.template.name.value}
-					onChange={(e) =>
-						templatePageState.template.set((prev) => ({
-							...prev,
-							name: e.target.value
-						}))
-					}
+					value={templatePageState.template.name}
+					onChange={(e) => templatePageState.handleChangeName(e.target.value)}
 					style={{
-						background: theme.paperBackground.value,
-						color: theme.text.value,
-						transition: theme.transition.value
+						background: theme.paperBackground,
+						color: theme.text,
+						transition: theme.transition
 					}}
 				/>
 				{/* Render all exercises here */}
 				<Stack direction='column' spacing={2} alignItems='center'>
 					{/* Exercise Template */}
-					{templatePageState.template.exercises.value.map((e, idx) => (
+					{templatePageState.template.exercises.map((e, idx) => (
 						<ExerciseTemplate exercise={e} key={idx} exerciseIdx={idx} />
 					))}
 				</Stack>

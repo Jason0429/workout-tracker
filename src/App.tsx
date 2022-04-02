@@ -24,42 +24,37 @@ import MyExercisesPage from "./pages/MyExercisesPage";
 import LogWorkoutPage from "./pages/LogWorkoutPage";
 import TemplatePage from "./pages/TemplatePage";
 
-import { UserType } from "./models";
+import { addNewUser, getUser, userExistsInDB, UserType } from "./custom_objects/User";
 import ViewWorkoutPage from "./pages/ViewWorkoutPage";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "./states/theme.state";
-import { globalSnackbar, handleCloseSnackbar } from "./states/snackbar.state";
-import { globalUser } from "./states/user.state";
+import { globalTheme } from "./states/ThemeState";
+import { globalSnackbar, handleCloseSnackbar } from "./states/SnackbarState";
+import { globalUser } from "./states/UserState";
 import ProtectedRoute from "./components/Global/ProtectedRoute";
 import LoadingPage from "./pages/LoadingPage";
 
 export default function App() {
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
-	const snackbar = useHookstate(globalSnackbar);
+	const { ...theme } = globalTheme.get();
+	const { ...snackbar } = globalSnackbar.get();
 	const [loading, setLoading] = useState(true);
 	const classes = useStyles();
-	const firebaseObj = new FirebaseObject();
+	const fb = new FirebaseObject();
 
 	/**
 	 * Handles signing in and out of Google.
 	 */
 	useEffect(() => {
-		const unsub = firebaseObj.auth.onAuthStateChanged(async (userObj: User | null) => {
-			if (userObj) {
-				console.log("Signing in");
-				if (await firebaseObj.userExistsInDB()) {
-					console.log("User exists in DB");
-					const userFromDB = await firebaseObj.getUser();
-					user.set(userFromDB);
-				} else {
-					console.log("Creating new user in DB");
-					const newUser = await firebaseObj.createNewUser();
-					user.set(newUser);
-				}
+		const unsub = fb.auth.onAuthStateChanged(async (userObj: User | null) => {
+			// return new FirebaseObject().logout()
+			if (!userObj) {
+				globalUser.set(null);
+				console.log("Signing out.");
 			} else {
-				console.log("Logged out");
-				user.set(null);
+				if (!(await userExistsInDB(userObj.uid))) {
+					console.log("Creating a new user.");
+					addNewUser();
+				}
+				console.log("Signing in.");
+				globalUser.set(await getUser());
 			}
 			if (loading) setLoading(false);
 		});
@@ -71,28 +66,29 @@ export default function App() {
 	 * Updates every time user was modified in database.
 	 */
 	useEffect(() => {
-		if (!user.value) return;
+		if (!globalUser.value) return;
 
 		// If user is logged in.
-		const userDoc = doc(firebaseObj.db, "users", user.value.id);
+		const userDoc = doc(fb.db, "users", globalUser.value.id);
 		const unsub = onSnapshot(userDoc, (doc) => {
-			const userObj = doc.data() as UserType;
-			user.set(userObj);
-			console.log("(user) onSnapshot: ", userObj);
+			const userData = doc.data() as UserType;
+			globalUser.set(userData);
+			console.log("(user) onSnapshot: ", userData);
 		});
 
 		return () => unsub();
 	}, [loading]); // DO NOT REMOVE loading dependency
 
 	if (loading) return <LoadingPage />;
+	if (!globalUser.value) return <SignInPage />;
 
 	return (
 		<BrowserRouter basename='/'>
 			<div
 				className={classes.mainContainer}
 				style={{
-					background: theme.value.background,
-					transition: theme.value.transition
+					background: theme.background,
+					transition: theme.transition
 				}}
 			>
 				<Navbar />
@@ -158,24 +154,28 @@ export default function App() {
 					{/* If user's logged in, redirect to HomePage, else sign in */}
 					<Route
 						path='/signin'
-						element={user.value ? <Navigate to={"/home"} /> : <SignInPage />}
+						element={globalUser.value ? <Navigate to={"/home"} /> : <SignInPage />}
 					/>
 
 					{/* Any other path */}
 					<Route
 						path='/*'
 						element={
-							user.value ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />
+							globalUser.value ? (
+								<Navigate to={"/home"} />
+							) : (
+								<Navigate to={"/signin"} />
+							)
 						}
 					/>
 				</Routes>
 
-				{user && (
+				{globalUser.value && (
 					<Snackbar
-						open={snackbar.value.open}
-						autoHideDuration={snackbar.value.autoCloseDelay}
+						open={snackbar.open}
+						autoHideDuration={snackbar.autoCloseDelay}
 						onClose={handleCloseSnackbar}
-						message={snackbar.value.message}
+						message={snackbar.message}
 						action={
 							<IconButton
 								size='small'

@@ -1,11 +1,11 @@
-import { useHookstate } from "@hookstate/core";
 import { Stack, Paper, Typography, List, ListItem, IconButton, ListItemText } from "@mui/material";
-import { ExerciseType } from "../../models";
-import { globalTheme } from "../../states/theme.state";
-import { globalUser } from "../../states/user.state";
+import { useThemeState } from "../../states/ThemeState";
+import { useUserState } from "../../states/UserState";
 import { useStyles } from "../../styles/classes";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ExerciseType } from "../../firebase/Exercise";
+import { UserType } from "../../firebase/User";
 
 interface Props {
 	searchedExercise: string;
@@ -20,8 +20,8 @@ function ListOfExercises({
 	handleOpenEditExerciseDialog,
 	handleDeleteExerciseBeforeConfirmation
 }: Props) {
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
+	const user = useUserState() as UserType;
+	const theme = useThemeState();
 	const classes = useStyles();
 
 	return (
@@ -37,8 +37,8 @@ function ListOfExercises({
 				variant='outlined'
 				sx={{
 					width: "100%",
-					background: theme.paperBackground.value,
-					transition: theme.transition.value
+					background: theme.paperBackground,
+					transition: theme.transition
 				}}
 			>
 				<Paper
@@ -47,15 +47,15 @@ function ListOfExercises({
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						background: theme.paperBackground.value,
-						transition: theme.transition.value
+						background: theme.paperBackground,
+						transition: theme.transition
 					}}
 				>
 					<Typography
 						variant='h6'
 						sx={{
-							transition: theme.transition.value,
-							color: theme.text.value
+							transition: theme.transition,
+							color: theme.text
 						}}
 					>
 						My Exercises
@@ -66,8 +66,8 @@ function ListOfExercises({
 					variant='outlined'
 					sx={{
 						padding: "15px",
-						background: theme.background.value,
-						transition: theme.transition.value
+						background: theme.background,
+						transition: theme.transition
 					}}
 				>
 					<input
@@ -76,9 +76,9 @@ function ListOfExercises({
 						value={searchedExercise}
 						onChange={(e) => setSearchedExercise(e.target.value)}
 						style={{
-							background: theme.paperBackground.value,
-							transition: theme.transition.value,
-							color: theme.text.value
+							background: theme.paperBackground,
+							transition: theme.transition,
+							color: theme.text
 						}}
 					/>
 				</Paper>
@@ -88,7 +88,7 @@ function ListOfExercises({
 						padding: "0"
 					}}
 				>
-					{user.value?.exercises
+					{user?.exercises
 						.map((e: ExerciseType) => e) // Have to make copy of array to prevent sort from mutating
 						.sort((a: ExerciseType, b: ExerciseType) => {
 							if (a.name < b.name) {
@@ -105,8 +105,8 @@ function ListOfExercises({
 							<ListItem
 								divider
 								sx={{
-									background: theme.paperBackground.value,
-									transition: theme.transition.value
+									background: theme.paperBackground,
+									transition: theme.transition
 								}}
 								key={idx}
 								secondaryAction={
@@ -119,8 +119,8 @@ function ListOfExercises({
 										>
 											<EditIcon
 												sx={{
-													transition: theme.transition.value,
-													color: theme.text.value
+													transition: theme.transition,
+													color: theme.text
 												}}
 											/>
 										</IconButton>
@@ -134,8 +134,8 @@ function ListOfExercises({
 										>
 											<DeleteIcon
 												sx={{
-													transition: theme.transition.value,
-													color: theme.text.value
+													transition: theme.transition,
+													color: theme.text
 												}}
 											/>
 										</IconButton>
@@ -145,8 +145,8 @@ function ListOfExercises({
 								<ListItemText
 									primary={exercise?.name}
 									sx={{
-										transition: theme.transition.value,
-										color: theme.text.value
+										transition: theme.transition,
+										color: theme.text
 									}}
 								/>
 							</ListItem>

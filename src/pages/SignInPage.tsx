@@ -1,6 +1,3 @@
-// React
-// import { useEffect, useState } from "react";
-
 // Material
 import { Stack } from "@mui/material";
 
@@ -9,7 +6,6 @@ import GoogleSignInButton from "../components/Global/GoogleSignInButton";
 
 // Firebase
 import FirebaseObject from "../firebase/firebase";
-// import GoogleSignOutButton from "../Global/GoogleSignOutButton";
 
 function SignInPage() {
 	/**

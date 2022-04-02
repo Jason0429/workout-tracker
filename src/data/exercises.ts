@@ -1,4 +1,4 @@
-import { Exercise, ExerciseType } from "../models";
+import { Exercise, ExerciseType } from "../firebase/Exercise";
 
 const CHEST = "Chest";
 const SHOULDERS = "Shoulders";

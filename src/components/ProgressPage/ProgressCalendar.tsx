@@ -1,20 +1,13 @@
 import { LocalizationProvider, StaticDatePicker } from "@mui/lab";
 import { Paper, TextField } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
-import { globalProgressPage, handleOnDateChange } from "../../states/ProgressPage.state";
-import { globalUser } from "../../states/user.state";
-import { UserType } from "../../models";
 import "react-calendar/dist/Calendar.css";
+import { useThemeState } from "../../states/ThemeState";
+import { useProgressPageState } from "./ProgressPageState";
 
 function ProgressCalendar() {
-	const user = useHookstate(globalUser).get();
-	const theme = useHookstate(globalTheme).get();
-	const progressPageState = useHookstate(globalProgressPage);
-	const { selectedDate } = progressPageState.get();
-
-	// console.log(selectedDate?.toString);
+	const theme = useThemeState();
+	const progressPageState = useProgressPageState();
 
 	return (
 		<Paper
@@ -29,9 +22,10 @@ function ProgressCalendar() {
 				<StaticDatePicker
 					orientation='portrait'
 					openTo='day'
-					value={new Date()}
+					// value={new Date()}
+					value={progressPageState.selectedDate}
 					onChange={(newDate: Date | null) =>
-						handleOnDateChange(user as UserType, newDate)
+						progressPageState.handleOnDateChange(newDate)
 					}
 					renderInput={(params) => <TextField {...params} />}
 				/>

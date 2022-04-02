@@ -24,8 +24,8 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import FirebaseObject from "../../firebase/firebase";
 import { themes } from "../../styles/theme";
 import { useHookstate } from "@hookstate/core";
-import { globalUser } from "../../states/user.state";
-import { globalTheme } from "../../states/theme.state";
+import { globalUser } from "../../states/UserState";
+import { globalTheme } from "../../states/ThemeState";
 
 function Navbar() {
 	const user = useHookstate(globalUser);

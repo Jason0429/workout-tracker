@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	Stack,
@@ -13,24 +13,23 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { TemplateType } from "../../models";
-import { useHookstate } from "@hookstate/core";
-import { deleteTemplate } from "../../states/user.state";
-import { globalTheme } from "../../states/theme.state";
-import { handleOpenSnackbar } from "../../states/snackbar.state";
+import { TemplateType, deleteTemplate } from "../../firebase/Template";
+import { useThemeState } from "../../states/ThemeState";
+import { useSnackbarState } from "../../states/SnackbarState";
 
 interface Props {
 	template: TemplateType;
 }
 
 function TemplateStart({ template }: Props) {
-	const MAX_NUMBER_OF_DISPLAYABLE_EXERCISES = 4;
-	const theme = useHookstate(globalTheme);
+	const theme = useThemeState();
+	const snackbar = useSnackbarState();
 	const navigate = useNavigate();
 	const [anchorEl, setAnchorEl] = useState<any>(null);
 	const openMenu = Boolean(anchorEl);
+	const MAX_NUMBER_OF_DISPLAYABLE_EXERCISES = 4;
 
-	function renderExerciseNames() {
+	const renderExerciseNames = () => {
 		let toRender = [];
 
 		for (let i = 0; i < template.exercises.length; i++) {
@@ -43,30 +42,28 @@ function TemplateStart({ template }: Props) {
 		}
 
 		return toRender;
-	}
+	};
 
-	function handleOpenMenu(e: React.MouseEvent) {
-		setAnchorEl(e.target);
-	}
-
-	function handleCloseMenu() {
+	const handleCloseMenu = () => {
 		setAnchorEl(null);
-	}
+	};
 
 	/**
 	 * Handles deleting template from database.
 	 * @param template template to be deleted.
 	 */
-	async function handleDeleteTemplate(template: TemplateType) {
+	const handleDeleteTemplate = async (template: TemplateType) => {
 		try {
-			await deleteTemplate(template as TemplateType);
-			handleOpenSnackbar(`Template: ${template?.name} has been successfully deleted.`);
+			await deleteTemplate(template.id);
+			snackbar.handleOpenSnackbar(
+				`Template: ${template.name} has been successfully deleted.`
+			);
 		} catch (e) {
-			handleOpenSnackbar(
-				`Something went wrong. Template: ${template?.name} could not be deleted.`
+			snackbar.handleOpenSnackbar(
+				`Something went wrong. Template: ${template.name} could not be deleted.`
 			);
 		}
-	}
+	};
 
 	return (
 		<Paper
@@ -77,7 +74,7 @@ function TemplateStart({ template }: Props) {
 				height: "150px",
 				position: "relative",
 				cursor: "pointer",
-				background: theme.paperBackground.value
+				background: theme.paperBackground
 			}}
 		>
 			<Stack
@@ -88,10 +85,7 @@ function TemplateStart({ template }: Props) {
 			>
 				{/* Template Name */}
 				<Stack direction='row' alignItems='center' justifyContent='space-between'>
-					<Typography
-						variant='subtitle1'
-						sx={{ fontWeight: "bold", color: theme.text.value }}
-					>
+					<Typography variant='subtitle1' sx={{ fontWeight: "bold", color: theme.text }}>
 						{template.name}
 					</Typography>
 				</Stack>
@@ -102,7 +96,7 @@ function TemplateStart({ template }: Props) {
 						<Typography
 							variant='caption'
 							noWrap
-							sx={{ width: "90%", color: theme.text.value }}
+							sx={{ width: "90%", color: theme.text }}
 							key={idx}
 						>
 							{exerciseName}
@@ -112,7 +106,7 @@ function TemplateStart({ template }: Props) {
 			</Stack>
 			<IconButton
 				size='small'
-				onClick={handleOpenMenu}
+				onClick={(e) => setAnchorEl(e.target)}
 				style={{
 					zIndex: 10,
 					position: "absolute",
@@ -122,7 +116,7 @@ function TemplateStart({ template }: Props) {
 			>
 				<MoreVertIcon
 					sx={{
-						color: theme.text.value
+						color: theme.text
 					}}
 				/>
 			</IconButton>
