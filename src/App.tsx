@@ -24,17 +24,18 @@ import MyExercisesPage from "./pages/MyExercisesPage";
 import LogWorkoutPage from "./pages/LogWorkoutPage";
 import TemplatePage from "./pages/TemplatePage";
 
-import { addNewUser, getUser, userExistsInDB, UserType } from "./custom_objects/User";
 import ViewWorkoutPage from "./pages/ViewWorkoutPage";
-import { globalTheme } from "./states/ThemeState";
-import { globalSnackbar, handleCloseSnackbar } from "./states/SnackbarState";
-import { globalUser } from "./states/UserState";
 import ProtectedRoute from "./components/Global/ProtectedRoute";
 import LoadingPage from "./pages/LoadingPage";
+import { userExistsInDB, addNewUser, getUser, UserType } from "./firebase/User";
+import { useSnackbarState } from "./states/SnackbarState";
+import { useThemeState } from "./states/ThemeState";
+import { useUserState } from "./states/UserState";
 
 export default function App() {
-	const { ...theme } = globalTheme.get();
-	const { ...snackbar } = globalSnackbar.get();
+	const user = useUserState();
+	const theme = useThemeState();
+	const snackbar = useSnackbarState();
 	const [loading, setLoading] = useState(true);
 	const classes = useStyles();
 	const fb = new FirebaseObject();
@@ -46,7 +47,7 @@ export default function App() {
 		const unsub = fb.auth.onAuthStateChanged(async (userObj: User | null) => {
 			// return new FirebaseObject().logout()
 			if (!userObj) {
-				globalUser.set(null);
+				user.set(null);
 				console.log("Signing out.");
 			} else {
 				if (!(await userExistsInDB(userObj.uid))) {
@@ -54,7 +55,7 @@ export default function App() {
 					addNewUser();
 				}
 				console.log("Signing in.");
-				globalUser.set(await getUser());
+				user.set(await getUser());
 			}
 			if (loading) setLoading(false);
 		});
@@ -66,13 +67,13 @@ export default function App() {
 	 * Updates every time user was modified in database.
 	 */
 	useEffect(() => {
-		if (!globalUser.value) return;
+		if (!user) return;
 
 		// If user is logged in.
-		const userDoc = doc(fb.db, "users", globalUser.value.id);
+		const userDoc = doc(fb.db, "users", user.id ?? "");
 		const unsub = onSnapshot(userDoc, (doc) => {
 			const userData = doc.data() as UserType;
-			globalUser.set(userData);
+			user.set(userData);
 			console.log("(user) onSnapshot: ", userData);
 		});
 
@@ -80,7 +81,7 @@ export default function App() {
 	}, [loading]); // DO NOT REMOVE loading dependency
 
 	if (loading) return <LoadingPage />;
-	if (!globalUser.value) return <SignInPage />;
+	if (!user) return <SignInPage />;
 
 	return (
 		<BrowserRouter basename='/'>
@@ -154,34 +155,28 @@ export default function App() {
 					{/* If user's logged in, redirect to HomePage, else sign in */}
 					<Route
 						path='/signin'
-						element={globalUser.value ? <Navigate to={"/home"} /> : <SignInPage />}
+						element={user ? <Navigate to={"/home"} /> : <SignInPage />}
 					/>
 
 					{/* Any other path */}
 					<Route
 						path='/*'
-						element={
-							globalUser.value ? (
-								<Navigate to={"/home"} />
-							) : (
-								<Navigate to={"/signin"} />
-							)
-						}
+						element={user ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />}
 					/>
 				</Routes>
 
-				{globalUser.value && (
+				{user && (
 					<Snackbar
 						open={snackbar.open}
 						autoHideDuration={snackbar.autoCloseDelay}
-						onClose={handleCloseSnackbar}
+						onClose={snackbar.handleCloseSnackbar}
 						message={snackbar.message}
 						action={
 							<IconButton
 								size='small'
 								aria-label='close'
 								color='inherit'
-								onClick={handleCloseSnackbar}
+								onClick={snackbar.handleCloseSnackbar}
 							>
 								<CloseIcon fontSize='small' />
 							</IconButton>

@@ -27,6 +27,14 @@ export const useUserState = () => {
 		},
 		get exercises() {
 			return state.ornull?.exercises.get();
+		},
+
+		/**
+		 * Sets user state to given user object.
+		 * @param userObj the user object.
+		 */
+		set(userObj: UserType | null) {
+			state.set(userObj);
 		}
 	};
 };

@@ -1,15 +1,14 @@
-import { useHookstate } from "@hookstate/core";
 import { Navigate } from "react-router-dom";
-import { globalUser } from "../../states/UserState";
+import { useUserState } from "../../states/UserState";
 
 interface Props {
 	element: any;
 }
 
 function ProtectedRoute({ element }: Props) {
-	const user = useHookstate(globalUser);
+	const user = useUserState();
 
-	return user.value ? element : <Navigate to={"/signin"} />;
+	return user ? element : <Navigate to={"/signin"} />;
 }
 
 export default ProtectedRoute;
