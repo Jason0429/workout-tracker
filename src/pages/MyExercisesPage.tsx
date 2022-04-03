@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import AddExerciseDialog from "../components/MyExercisesPage/AddExerciseDialog";
-import EditExerciseDialog from "../components/MyExercisesPage/EditExerciseDialog";
-import ConfirmationDialog from "../components/Global/ConfirmationDialog";
-import ListOfExercises from "../components/MyExercisesPage/ListOfExercises";
-import Controlbar from "../components/MyExercisesPage/Controlbar";
-import { useMyExercisesPageState } from "../components/MyExercisesPage/MyExercisesPageState";
+import AddExerciseDialog from '../components/MyExercisesPage/AddExerciseDialog';
+import EditExerciseDialog from '../components/MyExercisesPage/EditExerciseDialog';
+import ConfirmationDialog from '../components/Global/ConfirmationDialog';
+import ListOfExercises from '../components/MyExercisesPage/ListOfExercises';
+import Controlbar from '../components/MyExercisesPage/Controlbar';
+import { useMyExercisesPageState } from '../components/MyExercisesPage/MyExercisesPageState';
+import { useEffect, useState } from 'react';
+import LoadingPage from './LoadingPage';
 
 function MyExercisesPage() {
 	const myExercisesPageState = useMyExercisesPageState();
@@ -17,6 +18,8 @@ function MyExercisesPage() {
 		}
 	}, []);
 
+	if (loading) return <LoadingPage />;
+
 	return (
 		<>
 			{/* Confirmation Dialog */}
@@ -27,19 +30,27 @@ function MyExercisesPage() {
 					title={`Delete ${myExercisesPageState.selectedExerciseToDelete?.name}?`}
 					message={
 						<>
-							Are you sure you want to delete{" "}
-							<span style={{ fontWeight: "bold" }}>
-								{myExercisesPageState.selectedExerciseToDelete?.name}
+							Are you sure you want to delete{' '}
+							<span style={{ fontWeight: 'bold' }}>
+								{
+									myExercisesPageState
+										.selectedExerciseToDelete?.name
+								}
 							</span>
 						</>
 					}
-					yesFunction={myExercisesPageState.handleDeleteExerciseAfterConfirmation}
+					yesFunction={
+						myExercisesPageState.handleDeleteExerciseAfterConfirmation
+					}
 				/>
 			)}
 			{/* Add Exercise Dialog */}
 			<AddExerciseDialog />
 			{/* Edit Exercise Dialog */}
-			{myExercisesPageState.selectedExerciseToEdit && <EditExerciseDialog />}
+			{myExercisesPageState.selectedExerciseToEdit &&
+				myExercisesPageState.openEditExerciseDialog && (
+					<EditExerciseDialog />
+				)}
 			{/* List of Exercises */}
 			<ListOfExercises />
 			{/* Bottom Fixed Row */}

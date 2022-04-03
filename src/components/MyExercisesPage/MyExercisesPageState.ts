@@ -1,6 +1,10 @@
-import { createState, useHookstate } from "@hookstate/core";
-import { deleteExercise, ExerciseType } from "../../firebase/Exercise";
-import { useSnackbarState } from "../../states/SnackbarState";
+import { createState, useHookstate } from '@hookstate/core';
+import {
+	deleteExercise,
+	ExerciseType,
+	updateExercise
+} from '../../firebase/Exercise';
+import { useSnackbarState } from '../../states/SnackbarState';
 
 export type MyExercisesPageState = {
 	search: string;
@@ -9,15 +13,17 @@ export type MyExercisesPageState = {
 	openConfirmationDialog: boolean;
 	selectedExerciseToEdit: ExerciseType | null;
 	selectedExerciseToDelete: ExerciseType | null;
+	category: string;
 };
 
 const myExercisesPageState = createState({
-	search: "",
+	search: '',
 	openAddExerciseDialog: false,
 	openEditExerciseDialog: false,
 	openConfirmationDialog: false,
 	selectedExerciseToEdit: null,
-	selectedExerciseToDelete: null
+	selectedExerciseToDelete: null,
+	category: ''
 } as MyExercisesPageState);
 
 export const useMyExercisesPageState = () => {
@@ -25,6 +31,9 @@ export const useMyExercisesPageState = () => {
 	const snackbar = useSnackbarState();
 
 	return {
+		getState() {
+			return state;
+		},
 		get search() {
 			return state.search.get();
 		},
@@ -43,18 +52,22 @@ export const useMyExercisesPageState = () => {
 		get selectedExerciseToDelete() {
 			return state.selectedExerciseToDelete.get();
 		},
+		get category() {
+			return state.category.get();
+		},
 
 		/**
 		 * Initializes state.
 		 */
 		init() {
 			state.set({
-				search: "",
+				search: '',
 				openAddExerciseDialog: false,
 				openEditExerciseDialog: false,
 				openConfirmationDialog: false,
 				selectedExerciseToEdit: null,
-				selectedExerciseToDelete: null
+				selectedExerciseToDelete: null,
+				category: ''
 			});
 		},
 
@@ -62,43 +75,33 @@ export const useMyExercisesPageState = () => {
 		 * Handles search on change.
 		 */
 		handleSearchOnChange(search: string) {
-			state.set((prev) => ({
-				...prev,
-				search
-			}));
+			state.search.set(search);
 		},
 
 		/**
 		 * Handles opening add exercise dialog.
 		 */
 		handleOpenAddExerciseDialog() {
-			state.set((prev) => ({
-				...prev,
-				openAddExerciseDialog: true
-			}));
+			state.openAddExerciseDialog.set(true);
 		},
 
 		/**
 		 * Handles closing add exercise dialog.
 		 */
 		handleCloseAddExerciseDialog() {
-			state.set((prev) => ({
-				...prev,
-				openAddExerciseDialog: false
-			}));
+			state.openAddExerciseDialog.set(false);
 		},
 
 		/**
 		 * Handles setting selectedExerciseToEdit and
 		 * opening edit exercise dialog.
-		 * @param exercise the exercise to be edit.
+		 * @param exercise the exercise to be edited.
 		 */
 		handleOpenEditExerciseDialog(exercise: ExerciseType) {
-			state.set((prev) => ({
-				...prev,
-				selectedExerciseToEdit: exercise,
-				openEditExerciseDialog: true
-			}));
+			// console.log('Opening');
+			// console.log(state.get());
+			state.selectedExerciseToEdit.set(exercise);
+			state.openEditExerciseDialog.set(true);
 		},
 
 		/**
@@ -106,31 +109,22 @@ export const useMyExercisesPageState = () => {
 		 * clearing selectedExerciseToEdit.
 		 */
 		handleCloseEditExerciseDialog() {
-			state.set((prev) => ({
-				...prev,
-				selectedExerciseToEdit: null,
-				openEditExerciseDialog: false
-			}));
+			state.openEditExerciseDialog.set(false);
+			state.selectedExerciseToEdit.set(null);
 		},
 
 		/**
 		 * Handles opening confirmation dialog.
 		 */
 		handleOpenConfirmationDialog() {
-			state.set((prev) => ({
-				...prev,
-				openConfirmationDialog: true
-			}));
+			state.openConfirmationDialog.set(true);
 		},
 
 		/**
 		 * Handles opening confirmation dialog.
 		 */
 		handleCloseConfirmationDialog() {
-			state.set((prev) => ({
-				...prev,
-				openConfirmationDialog: false
-			}));
+			state.openConfirmationDialog.set(false);
 		},
 
 		/**
@@ -139,11 +133,8 @@ export const useMyExercisesPageState = () => {
 		 * @param exercise the exercise to be deleted.
 		 */
 		handleDeleteExerciseBeforeConfirmation(exercise: ExerciseType) {
-			state.set((prev) => ({
-				...prev,
-				selectedExerciseToDelete: exercise,
-				openConfirmationDialog: true
-			}));
+			state.selectedExerciseToDelete.set(exercise);
+			state.openConfirmationDialog.set(true);
 		},
 
 		/**
@@ -153,7 +144,7 @@ export const useMyExercisesPageState = () => {
 		 */
 		async handleDeleteExerciseAfterConfirmation() {
 			try {
-				await deleteExercise(this.selectedExerciseToDelete!.id);
+				await deleteExercise(state.selectedExerciseToDelete.get()!.id);
 
 				state.set((prev) => ({
 					...prev,
@@ -162,14 +153,82 @@ export const useMyExercisesPageState = () => {
 				}));
 
 				snackbar.handleOpenSnackbar(
-					`Exercise: ${this.selectedExerciseToDelete!.name} as been successfully deleted.`
+					`Exercise: ${
+						state.selectedExerciseToDelete.get()?.name
+					} as been successfully deleted.`
 				);
 			} catch (e) {
 				snackbar.handleOpenSnackbar(
 					`Something went wrong. Exercise: ${
-						this.selectedExerciseToDelete!.name
+						state.selectedExerciseToDelete.get()?.name
 					} could not be deleted.`
 				);
+			}
+		},
+
+		handleEditExerciseName(name: string) {
+			if (state.selectedExerciseToEdit.get()) {
+				state.selectedExerciseToEdit.set((prev) => ({
+					...(prev as ExerciseType),
+					name
+				}));
+			}
+		},
+
+		handleSetCategory(category: string) {
+			state.category.set(category);
+		},
+
+		handleAddCategory() {
+			if (state.category.get() === '') return;
+
+			if (state.selectedExerciseToEdit.get()) {
+				state.selectedExerciseToEdit.set((prev) => ({
+					...(prev as ExerciseType),
+					categories: [
+						...(prev as ExerciseType).categories,
+						state.category.get()
+					]
+				}));
+				state.category.set('');
+			}
+		},
+
+		/**
+		 * Handles deleting category from exercise.
+		 * - Takes index instead of category name to prevent deleting duplicates.
+		 * @param idx the index of the category to be deleted from exercise.
+		 */
+		handleDeleteCategory(idx: number) {
+			if (state.selectedExerciseToEdit.get()) {
+				state.selectedExerciseToEdit.set((prev) => ({
+					...(prev as ExerciseType),
+					categories: (prev as ExerciseType).categories.filter(
+						(_, i: number) => i !== idx
+					)
+				}));
+			}
+		},
+
+		/**
+		 * Handles updating exercise in database.
+		 */
+		async handleUpdateExercise() {
+			if (state.selectedExerciseToEdit.get()) {
+				const exercise =
+					state.selectedExerciseToEdit.get() as ExerciseType;
+				console.log(exercise);
+				try {
+					await updateExercise(exercise);
+					snackbar.handleOpenSnackbar(
+						`Exercise: ${exercise.name} has been successfully updated.`
+					);
+					// this.handleCloseEditExerciseDialog();
+				} catch (e) {
+					snackbar.handleOpenSnackbar(
+						`Something went wrong. Exercise: ${exercise.name} could not be updated.`
+					);
+				}
 			}
 		}
 	};

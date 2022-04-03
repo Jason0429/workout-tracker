@@ -1,5 +1,5 @@
 // React
-import { useState } from "react";
+import { useState } from 'react';
 
 // Material
 import {
@@ -10,28 +10,28 @@ import {
 	TextField,
 	Button,
 	Stack
-} from "@mui/material";
-import Chip from "@mui/material/Chip";
+} from '@mui/material';
+import Chip from '@mui/material/Chip';
 
-import { ExerciseType, Exercise, addExercise } from "../../firebase/Exercise";
-import { useSnackbarState } from "../../states/SnackbarState";
-import { useUserState } from "../../states/UserState";
-import { UserType } from "../../firebase/User";
-import { useMyExercisesPageState } from "./MyExercisesPageState";
+import { ExerciseType, Exercise, addExercise } from '../../firebase/Exercise';
+import { useSnackbarState } from '../../states/SnackbarState';
+import { useUserState } from '../../states/UserState';
+import { UserType } from '../../firebase/User';
+import { useMyExercisesPageState } from './MyExercisesPageState';
 
 function AddExerciseDialog() {
 	const myExercisePageState = useMyExercisesPageState();
 	const user = useUserState() as UserType;
 	const snackbar = useSnackbarState();
-	const [newExercise, setNewExercise] = useState(Exercise("", []));
-	const [category, setCategory] = useState("");
+	const [newExercise, setNewExercise] = useState(Exercise('', []));
+	const [category, setCategory] = useState('');
 
 	/**
 	 * Handles closing dialog.
 	 */
 	const handleClose = () => {
-		setNewExercise(Exercise("", []));
-		setCategory("");
+		setNewExercise(Exercise('', []));
+		setCategory('');
 		myExercisePageState.handleCloseAddExerciseDialog();
 	};
 
@@ -51,14 +51,14 @@ function AddExerciseDialog() {
 	 * @param category the new category to be added to exercise.
 	 */
 	const handleAddCategory = (category: string) => {
-		if (category === "") return;
+		if (category === '') return;
 
 		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
 			categories: [...exercise.categories, category]
 		}));
 
-		setCategory("");
+		setCategory('');
 	};
 
 	/**
@@ -86,13 +86,15 @@ function AddExerciseDialog() {
 	 * @param customExercise custom exercise to be added.
 	 */
 	const handleAddCustomExercise = async () => {
-		if (newExercise.name.trim() === "") {
-			snackbar.handleOpenSnackbar("Please enter an exercise name");
+		if (newExercise.name.trim() === '') {
+			snackbar.handleOpenSnackbar('Please enter an exercise name');
 			return;
 		}
 
 		if (doesExerciseNameAlreadyExist(newExercise.name.trim())) {
-			snackbar.handleOpenSnackbar(`Exercise: ${newExercise.name.trim()} already exists.`);
+			snackbar.handleOpenSnackbar(
+				`Exercise: ${newExercise.name.trim()} already exists.`
+			);
 			return;
 		}
 
@@ -118,7 +120,10 @@ function AddExerciseDialog() {
 	};
 
 	return (
-		<Dialog open={myExercisePageState.openAddExerciseDialog} onClose={handleClose} fullWidth>
+		<Dialog
+			open={myExercisePageState.openAddExerciseDialog}
+			onClose={handleClose}
+			fullWidth>
 			<DialogTitle>Add New Exercise</DialogTitle>
 			<DialogContent>
 				<Stack direction='column' spacing={3}>
@@ -136,14 +141,22 @@ function AddExerciseDialog() {
 						value={category}
 						onChange={(e) => setCategory(e.target.value)}
 						sx={{
-							width: "200px"
+							width: '200px'
 						}}
 						variant='outlined'
-						onKeyPress={(e) => (e.key === "Enter" ? handleAddCategory(category) : null)}
+						onKeyPress={(e) =>
+							e.key === 'Enter'
+								? handleAddCategory(category)
+								: null
+						}
 					/>
 					<Stack direction='row' gap={2} flexWrap='wrap'>
 						{newExercise?.categories.map((c, idx) => (
-							<Chip onDelete={() => handleDeleteCategory(idx)} label={c} key={idx} />
+							<Chip
+								onDelete={() => handleDeleteCategory(idx)}
+								label={c}
+								key={idx}
+							/>
 						))}
 					</Stack>
 				</Stack>
