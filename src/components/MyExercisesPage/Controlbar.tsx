@@ -1,12 +1,10 @@
 import { Paper, Stack } from "@mui/material";
 import { useThemeState } from "../../states/ThemeState";
 import { useStyles } from "../../styles/classes";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	setOpenAddExerciseDialog: Function;
-}
-
-function Controlbar({ setOpenAddExerciseDialog }: Props) {
+function Controlbar() {
+	const myExercisesPageState = useMyExercisesPageState();
 	const theme = useThemeState();
 	const classes = useStyles();
 
@@ -24,7 +22,10 @@ function Controlbar({ setOpenAddExerciseDialog }: Props) {
 			}}
 		>
 			<Stack direction='column' alignItems='center' justifyContent='center'>
-				<button className={classes.blueBtn} onClick={() => setOpenAddExerciseDialog(true)}>
+				<button
+					className={classes.blueBtn}
+					onClick={myExercisesPageState.handleOpenAddExerciseDialog}
+				>
 					+ Add New Exercise
 				</button>
 			</Stack>

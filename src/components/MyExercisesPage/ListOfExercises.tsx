@@ -6,20 +6,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ExerciseType } from "../../firebase/Exercise";
 import { UserType } from "../../firebase/User";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	searchedExercise: string;
-	setSearchedExercise: Function;
-	handleOpenEditExerciseDialog: Function;
-	handleDeleteExerciseBeforeConfirmation: Function;
-}
-
-function ListOfExercises({
-	searchedExercise,
-	setSearchedExercise,
-	handleOpenEditExerciseDialog,
-	handleDeleteExerciseBeforeConfirmation
-}: Props) {
+function ListOfExercises() {
+	const myExercisesPageState = useMyExercisesPageState();
 	const user = useUserState() as UserType;
 	const theme = useThemeState();
 	const classes = useStyles();
@@ -73,8 +63,8 @@ function ListOfExercises({
 					<input
 						placeholder='Search for exercise'
 						className={classes.roundInputField}
-						value={searchedExercise}
-						onChange={(e) => setSearchedExercise(e.target.value)}
+						value={myExercisesPageState.search}
+						onChange={(e) => myExercisesPageState.handleSearchOnChange(e.target.value)}
 						style={{
 							background: theme.paperBackground,
 							transition: theme.transition,
@@ -88,7 +78,7 @@ function ListOfExercises({
 						padding: "0"
 					}}
 				>
-					{user?.exercises
+					{user.exercises
 						.map((e: ExerciseType) => e) // Have to make copy of array to prevent sort from mutating
 						.sort((a: ExerciseType, b: ExerciseType) => {
 							if (a.name < b.name) {
@@ -99,7 +89,9 @@ function ListOfExercises({
 							return 0;
 						})
 						.filter((exercise: ExerciseType) =>
-							exercise.name.toLowerCase().includes(searchedExercise.toLowerCase())
+							exercise.name
+								.toLowerCase()
+								.includes(myExercisesPageState.search.toLowerCase())
 						)
 						.map((exercise: ExerciseType, idx: number) => (
 							<ListItem
@@ -115,7 +107,11 @@ function ListOfExercises({
 											edge='end'
 											aria-label='edit'
 											// To edit exercise
-											onClick={() => handleOpenEditExerciseDialog(exercise)}
+											onClick={() =>
+												myExercisesPageState.handleOpenEditExerciseDialog(
+													exercise
+												)
+											}
 										>
 											<EditIcon
 												sx={{
@@ -129,7 +125,9 @@ function ListOfExercises({
 											aria-label='delete'
 											// To delete exercise
 											onClick={() =>
-												handleDeleteExerciseBeforeConfirmation(exercise)
+												myExercisesPageState.handleDeleteExerciseBeforeConfirmation(
+													exercise
+												)
 											}
 										>
 											<DeleteIcon

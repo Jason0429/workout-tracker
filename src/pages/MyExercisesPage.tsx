@@ -1,129 +1,49 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import AddExerciseDialog from "../components/MyExercisesPage/AddExerciseDialog";
 import EditExerciseDialog from "../components/MyExercisesPage/EditExerciseDialog";
 import ConfirmationDialog from "../components/Global/ConfirmationDialog";
 import ListOfExercises from "../components/MyExercisesPage/ListOfExercises";
 import Controlbar from "../components/MyExercisesPage/Controlbar";
-import { deleteExercise, ExerciseType } from "../firebase/Exercise";
-import { useSnackbarState } from "../states/SnackbarState";
+import { useMyExercisesPageState } from "../components/MyExercisesPage/MyExercisesPageState";
 
 function MyExercisesPage() {
-	const snackbar = useSnackbarState();
+	const myExercisesPageState = useMyExercisesPageState();
+	const [loading, setLoading] = useState(true);
 
-	// Filters available exercises to search preference.
-	const [searchedExercise, setSearchedExercise] = useState("");
-
-	// Indicates open state of Adding Exercise Dialog.
-	const [openAddExerciseDialog, setOpenAddExerciseDialog] = useState<boolean>(false);
-
-	// Indicates open state of Editing Exercise Dialog.
-	const [openEditExerciseDialog, setOpenEditExerciseDialog] = useState<boolean>(false);
-
-	// Indicates open state of Confirmation Dialog.
-	const [openConfirmationDialog, setOpenConfirmationDialog] = useState<boolean>(false);
-
-	// Keeps track of which exercise is chosen to edit.
-	const [selectedExerciseToEdit, setSelectedExerciseToEdit] = useState<ExerciseType | null>(null);
-
-	// Keeps track of which exercise to delete.
-	const [selectedExerciseToDelete, setSelectedExerciseToDelete] = useState<ExerciseType | null>(
-		null
-	);
-
-	/**
-	 * Handles opening Edit Exercise Dialog.
-	 * @param exercise the exercise to edit.
-	 */
-	function handleOpenEditExerciseDialog(exercise: ExerciseType) {
-		setSelectedExerciseToEdit(exercise);
-		setOpenEditExerciseDialog(true);
-	}
-
-	/**
-	 * Handles closing exercise dialog and resetting selected exercise to edit.
-	 */
-	function handleCloseEditExerciseDialog() {
-		setOpenEditExerciseDialog(false);
-		setTimeout(() => setSelectedExerciseToEdit(null), 300);
-	}
-
-	/**
-	 * Handles deleting exercise from user's list of exercises.
-	 * - Opens confirmation dialog first.
-	 * @param {Exercise} exercise the exercise to be deleted.
-	 */
-	function handleDeleteExerciseBeforeConfirmation(exercise: ExerciseType) {
-		setSelectedExerciseToDelete(exercise);
-		setOpenConfirmationDialog(true);
-	}
-
-	/**
-	 * Handles deleting exercise from user's list of exercises.
-	 * - Closes confirmation dialog after confirmation.
-	 * @param {Exercise} exercise the exercise to be deleted.
-	 */
-	async function handleDeleteExerciseAfterConfirmation() {
-		try {
-			await deleteExercise(selectedExerciseToDelete!.id);
-
-			// Close confirmation dialog.
-			setOpenConfirmationDialog(false);
-
-			// Reset exercise to be deleted.
-			setSelectedExerciseToDelete(null);
-
-			snackbar.handleOpenSnackbar(
-				`Exercise: ${selectedExerciseToDelete?.name} as been successfully deleted.`
-			);
-		} catch (e) {
-			snackbar.handleOpenSnackbar(
-				`Something went wrong. Exercise: ${selectedExerciseToDelete?.name} could not be deleted.`
-			);
+	useEffect(() => {
+		if (loading) {
+			myExercisesPageState.init();
+			setLoading(false);
 		}
-	}
+	}, []);
 
 	return (
 		<>
 			{/* Confirmation Dialog */}
-			{selectedExerciseToDelete && (
+			{myExercisesPageState.selectedExerciseToDelete && (
 				<ConfirmationDialog
-					open={openConfirmationDialog}
-					onClose={() => setOpenConfirmationDialog(false)}
-					title={`Delete ${selectedExerciseToDelete?.name}?`}
+					open={myExercisesPageState.openConfirmationDialog}
+					onClose={myExercisesPageState.handleCloseConfirmationDialog}
+					title={`Delete ${myExercisesPageState.selectedExerciseToDelete?.name}?`}
 					message={
 						<>
 							Are you sure you want to delete{" "}
 							<span style={{ fontWeight: "bold" }}>
-								{selectedExerciseToDelete?.name}
+								{myExercisesPageState.selectedExerciseToDelete?.name}
 							</span>
 						</>
 					}
-					yesFunction={handleDeleteExerciseAfterConfirmation}
+					yesFunction={myExercisesPageState.handleDeleteExerciseAfterConfirmation}
 				/>
 			)}
 			{/* Add Exercise Dialog */}
-			<AddExerciseDialog
-				open={openAddExerciseDialog}
-				onClose={() => setOpenAddExerciseDialog(false)}
-			/>
+			<AddExerciseDialog />
 			{/* Edit Exercise Dialog */}
-			{selectedExerciseToEdit && (
-				<EditExerciseDialog
-					open={openEditExerciseDialog}
-					onClose={handleCloseEditExerciseDialog}
-					exercise={selectedExerciseToEdit}
-				/>
-			)}
+			{myExercisesPageState.selectedExerciseToEdit && <EditExerciseDialog />}
 			{/* List of Exercises */}
-			<ListOfExercises
-				searchedExercise={searchedExercise}
-				setSearchedExercise={setSearchedExercise}
-				handleOpenEditExerciseDialog={handleOpenEditExerciseDialog}
-				handleDeleteExerciseBeforeConfirmation={handleDeleteExerciseBeforeConfirmation}
-			/>
+			<ListOfExercises />
 			{/* Bottom Fixed Row */}
-			<Controlbar setOpenAddExerciseDialog={setOpenAddExerciseDialog} />
+			<Controlbar />
 		</>
 	);
 }

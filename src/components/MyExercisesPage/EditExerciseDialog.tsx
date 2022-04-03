@@ -14,15 +14,14 @@ import {
 import Chip from "@mui/material/Chip";
 import { ExerciseType, updateExercise } from "../../firebase/Exercise";
 import { useSnackbarState } from "../../states/SnackbarState";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	open: boolean;
-	onClose: () => void;
-	exercise: ExerciseType;
-}
-function EditExerciseDialog({ open, onClose, exercise }: Props) {
+function EditExerciseDialog() {
+	const myExercisesPageState = useMyExercisesPageState();
 	const snackbar = useSnackbarState();
-	const [newExercise, setNewExercise] = useState({ ...exercise });
+	const [newExercise, setNewExercise] = useState({
+		...(myExercisesPageState.selectedExerciseToEdit as ExerciseType)
+	});
 	const [category, setCategory] = useState("");
 
 	/**
@@ -30,20 +29,20 @@ function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	 * change newExercise to be edited.
 	 */
 	useEffect(() => {
-		setNewExercise(exercise);
-	}, [exercise]);
+		setNewExercise({ ...(myExercisesPageState.selectedExerciseToEdit as ExerciseType) });
+	}, [myExercisesPageState.selectedExerciseToEdit]);
 
 	/**
 	 * Handles closing dialog.
 	 */
 	function handleClose() {
-		onClose();
+		myExercisesPageState.handleCloseEditExerciseDialog();
 		setCategory("");
 	}
 
 	/**
 	 * Handles change in new exercise name.
-	 * @param {Event} e the TextField event.
+	 * @param e the TextField event.
 	 */
 	function handleExerciseName(e: React.ChangeEvent<any>) {
 		setNewExercise((exercise: ExerciseType) => ({
@@ -76,12 +75,12 @@ function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	/**
 	 * Handles deleting category from exercise.
 	 * - Takes index instead of category name to prevent deleting duplicates.
-	 * @param {Number} idx the index of the category to be deleted from exercise.
+	 * @param idx the index of the category to be deleted from exercise.
 	 */
 	function handleDeleteCategory(idx: number) {
 		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
-			categories: exercise["categories"].filter((_, i: number) => i !== idx)
+			categories: exercise.categories.filter((_, i: number) => i !== idx)
 		}));
 	}
 
@@ -103,63 +102,53 @@ function EditExerciseDialog({ open, onClose, exercise }: Props) {
 	}
 
 	return (
-		<>
-			{exercise && (
-				<Dialog open={open} onClose={handleClose} fullWidth>
-					<DialogTitle>
-						Edit <span style={{ color: "#0096FF" }}>{newExercise?.name}</span>
-					</DialogTitle>
-					<DialogContent>
-						<Stack direction='column' spacing={3}>
-							<TextField
-								// autoFocus
-								margin='normal'
-								label='Exercise Name'
-								variant='outlined'
-								value={newExercise?.name}
-								onChange={handleExerciseName}
-								fullWidth
-							/>
-							<TextField
-								label='New Category'
-								value={category}
-								onChange={handleCategory}
-								sx={{
-									width: "200px"
-								}}
-								variant='outlined'
-								onKeyPress={(e: any) =>
-									e.key === "Enter"
-										? handleAddCategory(e.target.value.trim())
-										: null
-								}
-							/>
-							<Stack direction='row' gap={2} flexWrap='wrap'>
-								{newExercise?.categories.map((c, idx) => (
-									<Chip
-										onDelete={() => handleDeleteCategory(idx)}
-										label={c}
-										key={idx}
-									/>
-								))}
-							</Stack>
-						</Stack>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleClose}>Cancel</Button>
-						<Button
-							onClick={() => {
-								handleUpdateExercise(newExercise);
-								handleClose();
-							}}
-							variant='outlined'
-						>
-							Save
-						</Button>
-					</DialogActions>
-				</Dialog>
-			)}
-		</>
+		<Dialog open={myExercisesPageState.openEditExerciseDialog} onClose={handleClose} fullWidth>
+			<DialogTitle>
+				Edit <span style={{ color: "#0096FF" }}>{newExercise?.name}</span>
+			</DialogTitle>
+			<DialogContent>
+				<Stack direction='column' spacing={3}>
+					<TextField
+						// autoFocus
+						margin='normal'
+						label='Exercise Name'
+						variant='outlined'
+						value={newExercise?.name}
+						onChange={handleExerciseName}
+						fullWidth
+					/>
+					<TextField
+						label='New Category'
+						value={category}
+						onChange={handleCategory}
+						sx={{
+							width: "200px"
+						}}
+						variant='outlined'
+						onKeyPress={(e: any) =>
+							e.key === "Enter" ? handleAddCategory(e.target.value.trim()) : null
+						}
+					/>
+					<Stack direction='row' gap={2} flexWrap='wrap'>
+						{newExercise?.categories.map((c, idx) => (
+							<Chip onDelete={() => handleDeleteCategory(idx)} label={c} key={idx} />
+						))}
+					</Stack>
+				</Stack>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={handleClose}>Cancel</Button>
+				<Button
+					onClick={() => {
+						handleUpdateExercise(newExercise);
+						handleClose();
+					}}
+					variant='outlined'
+				>
+					Save
+				</Button>
+			</DialogActions>
+		</Dialog>
 	);
 }
 

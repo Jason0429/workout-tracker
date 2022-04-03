@@ -17,13 +17,10 @@ import { ExerciseType, Exercise, addExercise } from "../../firebase/Exercise";
 import { useSnackbarState } from "../../states/SnackbarState";
 import { useUserState } from "../../states/UserState";
 import { UserType } from "../../firebase/User";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	open: boolean;
-	onClose: () => void;
-}
-
-function AddExerciseDialog({ open, onClose }: Props) {
+function AddExerciseDialog() {
+	const myExercisePageState = useMyExercisesPageState();
 	const user = useUserState() as UserType;
 	const snackbar = useSnackbarState();
 	const [newExercise, setNewExercise] = useState(Exercise("", []));
@@ -35,12 +32,12 @@ function AddExerciseDialog({ open, onClose }: Props) {
 	const handleClose = () => {
 		setNewExercise(Exercise("", []));
 		setCategory("");
-		onClose();
+		myExercisePageState.handleCloseAddExerciseDialog();
 	};
 
 	/**
 	 * Handles change in new exercise name.
-	 * @param {Event} e the TextField event.
+	 * @param e the TextField event.
 	 */
 	const handleExerciseName = (e: React.ChangeEvent<any>) => {
 		setNewExercise((exercise: ExerciseType) => ({
@@ -51,14 +48,14 @@ function AddExerciseDialog({ open, onClose }: Props) {
 
 	/**
 	 * Handles adding new category to exercise.
-	 * @param {string} category the new category to be added to exercise.
+	 * @param category the new category to be added to exercise.
 	 */
 	const handleAddCategory = (category: string) => {
 		if (category === "") return;
 
 		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
-			categories: [...exercise["categories"], category]
+			categories: [...exercise.categories, category]
 		}));
 
 		setCategory("");
@@ -72,8 +69,16 @@ function AddExerciseDialog({ open, onClose }: Props) {
 	const handleDeleteCategory = (idx: number) => {
 		setNewExercise((exercise: ExerciseType) => ({
 			...exercise,
-			categories: exercise["categories"].filter((_, i: number) => i !== idx)
+			categories: exercise.categories.filter((_, i: number) => i !== idx)
 		}));
+	};
+
+	/**
+	 * Returns true if exercise with this name exists already.
+	 * @param name the exercise name.
+	 */
+	const doesExerciseNameAlreadyExist = (name: string) => {
+		return user.exercises.some((e) => e.name === name);
 	};
 
 	/**
@@ -86,20 +91,18 @@ function AddExerciseDialog({ open, onClose }: Props) {
 			return;
 		}
 
+		if (doesExerciseNameAlreadyExist(newExercise.name.trim())) {
+			snackbar.handleOpenSnackbar(`Exercise: ${newExercise.name.trim()} already exists.`);
+			return;
+		}
+
 		const exerciseToBeAdded = {
 			...newExercise,
 			name: newExercise.name.trim()
 		};
 
-		// Check if exercise with this name already exists.
-		if (user.exercises.some((e) => e.name === exerciseToBeAdded.name)) {
-			snackbar.handleOpenSnackbar(`Exercise: ${exerciseToBeAdded.name} already exists.`);
-			return;
-		}
-
 		try {
 			await addExercise(exerciseToBeAdded as ExerciseType);
-
 			snackbar.handleOpenSnackbar(
 				`Exercise: ${exerciseToBeAdded.name} has been successfully added.`
 			);
@@ -115,7 +118,7 @@ function AddExerciseDialog({ open, onClose }: Props) {
 	};
 
 	return (
-		<Dialog open={open} onClose={handleClose} fullWidth>
+		<Dialog open={myExercisePageState.openAddExerciseDialog} onClose={handleClose} fullWidth>
 			<DialogTitle>Add New Exercise</DialogTitle>
 			<DialogContent>
 				<Stack direction='column' spacing={3}>
