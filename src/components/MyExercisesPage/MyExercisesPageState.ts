@@ -13,6 +13,7 @@ export type MyExercisesPageState = {
 	openConfirmationDialog: boolean;
 	selectedExerciseToEdit: ExerciseType | null;
 	selectedExerciseToDelete: ExerciseType | null;
+	exerciseToAdd: ExerciseType | null;
 	category: string;
 };
 
@@ -23,6 +24,7 @@ const myExercisesPageState = createState({
 	openConfirmationDialog: false,
 	selectedExerciseToEdit: null,
 	selectedExerciseToDelete: null,
+	exerciseToAdd: null,
 	category: ''
 } as MyExercisesPageState);
 
@@ -52,6 +54,9 @@ export const useMyExercisesPageState = () => {
 		get selectedExerciseToDelete() {
 			return state.selectedExerciseToDelete.get();
 		},
+		get exerciseToAdd() {
+			return state.exerciseToAdd.get();
+		},
 		get category() {
 			return state.category.get();
 		},
@@ -67,6 +72,7 @@ export const useMyExercisesPageState = () => {
 				openConfirmationDialog: false,
 				selectedExerciseToEdit: null,
 				selectedExerciseToDelete: null,
+				exerciseToAdd: null,
 				category: ''
 			});
 		},
