@@ -1,6 +1,3 @@
-// React
-// import { useEffect, useState } from "react";
-
 // Material
 import { Stack } from "@mui/material";
 
@@ -9,18 +6,15 @@ import GoogleSignInButton from "../components/Global/GoogleSignInButton";
 
 // Firebase
 import FirebaseObject from "../firebase/firebase";
-// import GoogleSignOutButton from "../Global/GoogleSignOutButton";
 
 function SignInPage() {
 	/**
 	 * Handles sign in with google.
 	 */
-	function handleSignInUser() {
+	const handleSignInUser = () => {
 		const firebaseObj = new FirebaseObject();
 		firebaseObj.signInWithGoogle();
-
-		// onAuthStateChanged handles actions after user is logged in.
-	}
+	};
 
 	return (
 		<Stack
@@ -32,7 +26,6 @@ function SignInPage() {
 			}}
 		>
 			<GoogleSignInButton onClick={handleSignInUser} />
-			{/* <GoogleSignOutButton onClick={handleSignOutUser} /> */}
 		</Stack>
 	);
 }

@@ -1,27 +1,17 @@
-import { useHookstate } from "@hookstate/core";
 import { Stack, Paper, Typography, List, ListItem, IconButton, ListItemText } from "@mui/material";
-import { ExerciseType, UserType } from "../../models";
-import { globalTheme } from "../../states/theme.state";
-import { globalUser } from "../../states/user.state";
+import { useThemeState } from "../../states/ThemeState";
+import { useUserState } from "../../states/UserState";
 import { useStyles } from "../../styles/classes";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ExerciseType } from "../../firebase/Exercise";
+import { UserType } from "../../firebase/User";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	searchedExercise: string;
-	setSearchedExercise: Function;
-	handleOpenEditExerciseDialog: Function;
-	handleDeleteExerciseBeforeConfirmation: Function;
-}
-
-function ListOfExercises({
-	searchedExercise,
-	setSearchedExercise,
-	handleOpenEditExerciseDialog,
-	handleDeleteExerciseBeforeConfirmation
-}: Props) {
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
+function ListOfExercises() {
+	const { ...state } = useMyExercisesPageState();
+	const user = useUserState() as UserType;
+	const theme = useThemeState();
 	const classes = useStyles();
 
 	return (
@@ -37,8 +27,8 @@ function ListOfExercises({
 				variant='outlined'
 				sx={{
 					width: "100%",
-					background: theme.paperBackground.value,
-					transition: theme.transition.value
+					background: theme.paperBackground,
+					transition: theme.transition
 				}}
 			>
 				<Paper
@@ -47,15 +37,15 @@ function ListOfExercises({
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						background: theme.paperBackground.value,
-						transition: theme.transition.value
+						background: theme.paperBackground,
+						transition: theme.transition
 					}}
 				>
 					<Typography
 						variant='h6'
 						sx={{
-							transition: theme.transition.value,
-							color: theme.text.value
+							transition: theme.transition,
+							color: theme.text
 						}}
 					>
 						My Exercises
@@ -66,19 +56,19 @@ function ListOfExercises({
 					variant='outlined'
 					sx={{
 						padding: "15px",
-						background: theme.background.value,
-						transition: theme.transition.value
+						background: theme.background,
+						transition: theme.transition
 					}}
 				>
 					<input
 						placeholder='Search for exercise'
 						className={classes.roundInputField}
-						value={searchedExercise}
-						onChange={(e) => setSearchedExercise(e.target.value)}
+						value={state.search}
+						onChange={(e) => state.handleSearchOnChange(e.target.value)}
 						style={{
-							background: theme.paperBackground.value,
-							transition: theme.transition.value,
-							color: theme.text.value
+							background: theme.paperBackground,
+							transition: theme.transition,
+							color: theme.text
 						}}
 					/>
 				</Paper>
@@ -88,7 +78,7 @@ function ListOfExercises({
 						padding: "0"
 					}}
 				>
-					{user.value?.exercises
+					{user.exercises
 						.map((e: ExerciseType) => e) // Have to make copy of array to prevent sort from mutating
 						.sort((a: ExerciseType, b: ExerciseType) => {
 							if (a.name < b.name) {
@@ -99,14 +89,14 @@ function ListOfExercises({
 							return 0;
 						})
 						.filter((exercise: ExerciseType) =>
-							exercise.name.toLowerCase().includes(searchedExercise.toLowerCase())
+							exercise.name.toLowerCase().includes(state.search.toLowerCase())
 						)
 						.map((exercise: ExerciseType, idx: number) => (
 							<ListItem
 								divider
 								sx={{
-									background: theme.paperBackground.value,
-									transition: theme.transition.value
+									background: theme.paperBackground,
+									transition: theme.transition
 								}}
 								key={idx}
 								secondaryAction={
@@ -115,12 +105,16 @@ function ListOfExercises({
 											edge='end'
 											aria-label='edit'
 											// To edit exercise
-											onClick={() => handleOpenEditExerciseDialog(exercise)}
+											onClick={() =>
+												state.handleOpenEditExerciseDialog(
+													{ ...exercise } // Must use spread to avoid hookstate error 102
+												)
+											}
 										>
 											<EditIcon
 												sx={{
-													transition: theme.transition.value,
-													color: theme.text.value
+													transition: theme.transition,
+													color: theme.text
 												}}
 											/>
 										</IconButton>
@@ -129,13 +123,15 @@ function ListOfExercises({
 											aria-label='delete'
 											// To delete exercise
 											onClick={() =>
-												handleDeleteExerciseBeforeConfirmation(exercise)
+												state.handleDeleteExerciseBeforeConfirmation(
+													exercise
+												)
 											}
 										>
 											<DeleteIcon
 												sx={{
-													transition: theme.transition.value,
-													color: theme.text.value
+													transition: theme.transition,
+													color: theme.text
 												}}
 											/>
 										</IconButton>
@@ -145,8 +141,8 @@ function ListOfExercises({
 								<ListItemText
 									primary={exercise?.name}
 									sx={{
-										transition: theme.transition.value,
-										color: theme.text.value
+										transition: theme.transition,
+										color: theme.text
 									}}
 								/>
 							</ListItem>

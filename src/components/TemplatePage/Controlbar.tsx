@@ -2,19 +2,19 @@ import { Stack, Tooltip, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
 import { useStyles } from "../../styles/classes";
 import { useNavigate } from "react-router-dom";
-import { handleOpenDialog, handleSaveTemplate } from "../../states/TemplatePage.state";
+import { useThemeState } from "../../states/ThemeState";
+import { useTemplatePageState } from "./TemplatePageState";
 
 function Controlbar() {
-	const theme = useHookstate(globalTheme);
+	const templatePageState = useTemplatePageState();
+	const theme = useThemeState();
 	const classes = useStyles();
 	const navigate = useNavigate();
 
 	const handleSaveTemplateAction = async () => {
-		if (await handleSaveTemplate()) navigate(-1);
+		if (await templatePageState.handleSaveTemplate()) navigate(-1);
 	};
 
 	return (
@@ -31,13 +31,13 @@ function Controlbar() {
 				direction='row'
 				className={classes.controlMenuBar}
 				sx={{
-					background: theme.paperBackground.value,
-					transition: theme.transition.value
+					background: theme.paperBackground,
+					transition: theme.transition
 				}}
 			>
 				{/* Add Exercise Btn */}
 				<Tooltip title='Add Exercise'>
-					<IconButton size='small' onClick={handleOpenDialog}>
+					<IconButton size='small' onClick={templatePageState.handleOpenDialog}>
 						<AddIcon className={classes.blueCircleBtn} fontSize='small' />
 					</IconButton>
 				</Tooltip>

@@ -10,9 +10,9 @@ import {
 
 interface Props {
 	open: boolean;
-	onClose: () => any;
 	title: any;
 	message: any;
+	onClose: () => any;
 	yesFunction: () => any;
 }
 

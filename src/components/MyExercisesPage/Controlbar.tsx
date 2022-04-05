@@ -1,14 +1,11 @@
-import { useHookstate } from "@hookstate/core";
 import { Paper, Stack } from "@mui/material";
-import { globalTheme } from "../../states/theme.state";
+import { useThemeState } from "../../states/ThemeState";
 import { useStyles } from "../../styles/classes";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
-interface Props {
-	setOpenAddExerciseDialog: Function;
-}
-
-function Controlbar({ setOpenAddExerciseDialog }: Props) {
-	const theme = useHookstate(globalTheme);
+function Controlbar() {
+	const { ...state } = useMyExercisesPageState();
+	const theme = useThemeState();
 	const classes = useStyles();
 
 	return (
@@ -20,12 +17,12 @@ function Controlbar({ setOpenAddExerciseDialog }: Props) {
 				position: "fixed",
 				bottom: 0,
 				width: "100%",
-				background: theme.value.background,
-				transition: theme.value.transition
+				background: theme.background,
+				transition: theme.transition
 			}}
 		>
 			<Stack direction='column' alignItems='center' justifyContent='center'>
-				<button className={classes.blueBtn} onClick={() => setOpenAddExerciseDialog(true)}>
+				<button className={classes.blueBtn} onClick={state.handleOpenAddExerciseDialog}>
 					+ Add New Exercise
 				</button>
 			</Stack>

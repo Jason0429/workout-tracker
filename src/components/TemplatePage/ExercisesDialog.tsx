@@ -1,23 +1,21 @@
 import { useState } from "react";
-import { ExerciseType, Exercise, Set } from "../../models";
 import { List, ListItem, ListItemText, Dialog, DialogTitle, Stack } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useStyles } from "../../styles/classes";
-import {
-	globalTemplatePage,
-	handleAddExercise,
-	handleCloseDialog
-} from "../../states/TemplatePage.state";
-import { handleOpenSnackbar } from "../../states/snackbar.state";
-import { addCustomExercise, globalUser } from "../../states/user.state";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
+import { ExerciseType, Exercise, addExercise } from "../../firebase/Exercise";
+import { useThemeState } from "../../states/ThemeState";
+import { useTemplatePageState } from "./TemplatePageState";
+import { Set } from "../../firebase/Set";
+import { useSnackbarState } from "../../states/SnackbarState";
+import { UserType } from "../../firebase/User";
+import { useUserState } from "../../states/UserState";
 
 function ExercisesDialog() {
 	const classes = useStyles();
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
-	const templatePageState = useHookstate(globalTemplatePage);
+	const user = useUserState() as UserType;
+	const theme = useThemeState();
+	const snackbar = useSnackbarState();
+	const templatePageState = useTemplatePageState();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [customExerciseName, setCustomExerciseName] = useState("");
 
@@ -28,7 +26,7 @@ function ExercisesDialog() {
 	function handleCloseDialogAndClear() {
 		setSearchTerm("");
 		setCustomExerciseName("");
-		handleCloseDialog();
+		templatePageState.handleCloseDialog();
 	}
 
 	/**
@@ -42,7 +40,7 @@ function ExercisesDialog() {
 			sets: [Set()]
 		};
 
-		handleAddExercise(exerciseWithSet);
+		templatePageState.handleAddExercise(exerciseWithSet);
 		handleCloseDialogAndClear();
 	}
 
@@ -54,17 +52,17 @@ function ExercisesDialog() {
 		const customExercise = Exercise(exerciseName.trim(), []);
 
 		try {
-			await addCustomExercise(customExercise as ExerciseType);
+			await addExercise(customExercise as ExerciseType);
 
 			// Add this custom exercise to current template/workout.
 			// Closes add exercise dialog.
 			handleAddExerciseAndClear(customExercise);
 
-			handleOpenSnackbar(
+			snackbar.handleOpenSnackbar(
 				`Custom Exercise: ${exerciseName.trim()} has been successfully added.`
 			);
 		} catch (e) {
-			handleOpenSnackbar(
+			snackbar.handleOpenSnackbar(
 				`Something went wrong. Custom Exercise: ${exerciseName.trim()} could not be added.`
 			);
 		}
@@ -74,10 +72,10 @@ function ExercisesDialog() {
 		<Dialog
 			// If you press outside of dialog
 			onClose={handleCloseDialogAndClear}
-			open={templatePageState.openExerciseDialog.value}
+			open={templatePageState.openExerciseDialog}
 			fullWidth={true}
 			sx={{
-				background: theme.background.value
+				background: theme.background
 			}}
 		>
 			<Stack
@@ -88,7 +86,7 @@ function ExercisesDialog() {
 					width: "100%",
 					justifyContent: "center",
 					alignItems: "center",
-					background: theme.background.value,
+					background: theme.background,
 					zIndex: 1,
 					paddingBottom: "20px",
 					borderBottom: "1px solid #00000020"
@@ -96,8 +94,8 @@ function ExercisesDialog() {
 			>
 				<DialogTitle
 					sx={{
-						color: theme.text.value,
-						transition: theme.transition.value
+						color: theme.text,
+						transition: theme.transition
 					}}
 				>
 					Select an Exercise
@@ -116,9 +114,9 @@ function ExercisesDialog() {
 						onChange={(e) => setSearchTerm(e.target.value)}
 						autoFocus
 						style={{
-							background: theme.paperBackground.value,
-							color: theme.text.value,
-							transition: theme.transition.value
+							background: theme.paperBackground,
+							color: theme.text,
+							transition: theme.transition
 						}}
 					/>
 
@@ -141,17 +139,17 @@ function ExercisesDialog() {
 									: null
 							}
 							style={{
-								background: theme.paperBackground.value,
-								color: theme.text.value,
-								transition: theme.transition.value
+								background: theme.paperBackground,
+								color: theme.text,
+								transition: theme.transition
 							}}
 						/>
 						<SendIcon
 							className={classes.sendIcon}
 							onClick={() => handleAddCustomExercise(customExerciseName)}
 							sx={{
-								color: theme.text.value,
-								transition: theme.transition.value
+								color: theme.text,
+								transition: theme.transition
 							}}
 						/>
 					</Stack>
@@ -162,12 +160,12 @@ function ExercisesDialog() {
 			<List
 				className={classes.list}
 				sx={{
-					background: theme.background.value,
-					transition: theme.transition.value,
+					background: theme.background,
+					transition: theme.transition,
 					height: "fit-content"
 				}}
 			>
-				{user.value?.exercises
+				{user.exercises
 					.map((e: ExerciseType) => e)
 					.sort((a: ExerciseType, b: ExerciseType) => {
 						if (a.name < b.name) {
@@ -187,10 +185,10 @@ function ExercisesDialog() {
 							key={idx}
 						>
 							<ListItemText
-								primary={exercise?.name}
+								primary={exercise.name}
 								sx={{
-									color: theme.text.value,
-									transition: theme.transition.value
+									color: theme.text,
+									transition: theme.transition
 								}}
 							/>
 						</ListItem>

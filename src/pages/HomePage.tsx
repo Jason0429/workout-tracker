@@ -1,22 +1,21 @@
 import { Stack, styled } from "@mui/material";
 import { NavLink } from "react-router-dom";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../states/theme.state";
+import { useThemeState } from "../states/ThemeState";
 
 function HomePage() {
-	const theme = useHookstate(globalTheme);
+	const theme = useThemeState();
 
 	const MyNavLink = styled(NavLink)`
-		background: ${theme.value.paperBackground};
+		background: ${theme.paperBackground};
 		border-radius: 20px;
 		padding: 10px;
 		width: 200px;
 		text-align: center;
 		text-decoration: none;
-		color: ${theme.value.text};
+		color: ${theme.text};
 
 		&:hover {
-			background: ${theme.value.paperBackgroundHover};
+			background: ${theme.paperBackgroundHover};
 		}
 	`;
 

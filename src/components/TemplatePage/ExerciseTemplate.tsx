@@ -10,12 +10,12 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ExerciseSetRow from "./ExerciseSetRow";
-import { ExerciseType } from "../../models";
 import { useStyles } from "../../styles/classes";
 import Spacer from "../Global/Spacer";
-import { useHookstate } from "@hookstate/core";
-import { globalTheme } from "../../states/theme.state";
-import { handleAddSet, handleDeleteExercise } from "../../states/TemplatePage.state";
+import { ExerciseType } from "../../firebase/Exercise";
+import { SetType } from "../../firebase/Set";
+import { useThemeState } from "../../states/ThemeState";
+import { useTemplatePageState } from "./TemplatePageState";
 
 type Props = {
 	exercise: ExerciseType;
@@ -23,8 +23,9 @@ type Props = {
 };
 
 function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
+	const theme = useThemeState();
+	const templatePageState = useTemplatePageState();
 	const classes = useStyles();
-	const theme = useHookstate(globalTheme);
 	const [expanded, setExpanded] = useState(true);
 
 	return (
@@ -55,24 +56,24 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 						<IconButton size='small'>
 							<KeyboardArrowDownIcon
 								sx={{
-									color: theme.text.value,
+									color: theme.text,
 									transform: `rotate(${expanded ? "0deg" : "180deg"})`,
-									transition: theme.transition.value
+									transition: theme.transition
 								}}
 							/>
 						</IconButton>
 						<div
 							className={classes.exerciseTemplateHeader}
 							style={{
-								color: theme.text.value,
-								transition: theme.transition.value
+								color: theme.text,
+								transition: theme.transition
 							}}
 						>
 							{exercise.name}
 						</div>
 						<div
 							className={classes.redXBtn}
-							onClick={() => handleDeleteExercise(exerciseIdx)}
+							onClick={() => templatePageState.handleDeleteExercise(exerciseIdx)}
 						>
 							<CloseIcon
 								style={{
@@ -91,8 +92,8 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText.value,
-									transition: theme.transition.value
+									color: theme.detailText,
+									transition: theme.transition
 								}}
 							>
 								Set
@@ -100,8 +101,8 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText.value,
-									transition: theme.transition.value
+									color: theme.detailText,
+									transition: theme.transition
 								}}
 							>
 								Reps
@@ -109,8 +110,8 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText.value,
-									transition: theme.transition.value
+									color: theme.detailText,
+									transition: theme.transition
 								}}
 							>
 								lbs.
@@ -118,8 +119,8 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 							<div
 								className={classes.exerciseTemplateSubHeader}
 								style={{
-									color: theme.detailText.value,
-									transition: theme.transition.value
+									color: theme.detailText,
+									transition: theme.transition
 								}}
 							>
 								RPE
@@ -128,7 +129,7 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 						</Stack>
 
 						{/* Set Rows */}
-						{exercise.sets.map((set, idx) => (
+						{exercise.sets.map((set: SetType, idx: number) => (
 							<ExerciseSetRow
 								key={idx}
 								set={set}
@@ -138,7 +139,10 @@ function ExerciseTemplate({ exercise, exerciseIdx }: Props) {
 						))}
 
 						{/* Add Set Row Button */}
-						<div className={classes.grayBtn} onClick={() => handleAddSet(exerciseIdx)}>
+						<div
+							className={classes.grayBtn}
+							onClick={() => templatePageState.handleAddSet(exerciseIdx)}
+						>
 							+ Add Set
 						</div>
 					</Stack>

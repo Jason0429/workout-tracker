@@ -2,21 +2,23 @@ import { Stack, Typography, IconButton, Paper, Divider, Tooltip } from "@mui/mat
 import { useNavigate, useParams } from "react-router-dom";
 
 import EditIcon from "@mui/icons-material/Edit";
-import { ExerciseType, SetType, WorkoutType } from "../models";
 import Spacer from "../components/Global/Spacer";
-import { useHookstate } from "@hookstate/core";
-import { globalUser } from "../states/user.state";
-import { globalTheme } from "../states/theme.state";
+import { ExerciseType } from "../firebase/Exercise";
+import { useUserState } from "../states/UserState";
+import { useThemeState } from "../states/ThemeState";
+import { SetType } from "../firebase/Set";
+import { UserType } from "../firebase/User";
+import { WorkoutType } from "../firebase/Workout";
 
 function ViewWorkoutPage() {
 	const { id } = useParams();
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
+	const user = useUserState() as UserType;
+	const theme = useThemeState();
 	const navigate = useNavigate();
 	const workout = getWorkout();
 
 	function getWorkout(): WorkoutType | undefined {
-		return user.value?.workouts.find((w: WorkoutType) => w.id === id);
+		return user.workouts.find((w: WorkoutType) => w.id === id);
 	}
 
 	// If workout cannot be found.
@@ -57,8 +59,8 @@ function ViewWorkoutPage() {
 					<Typography
 						variant='h6'
 						sx={{
-							transition: theme.transition.value,
-							color: theme.text.value
+							transition: theme.transition,
+							color: theme.text
 						}}
 					>
 						{workout?.name}
@@ -71,9 +73,7 @@ function ViewWorkoutPage() {
 							size='small'
 							onClick={() => navigate(`/editWorkout/${id}`)}
 						>
-							<EditIcon
-								sx={{ transition: theme.transition.value, color: theme.text.value }}
-							/>
+							<EditIcon sx={{ transition: theme.transition, color: theme.text }} />
 						</IconButton>
 					</Tooltip>
 				</Stack>
@@ -89,15 +89,15 @@ function ViewWorkoutPage() {
 							margin: "5px 0",
 							padding: "10px",
 							boxSizing: "border-box",
-							background: theme.paperBackground.value,
-							transition: theme.transition.value
+							background: theme.paperBackground,
+							transition: theme.transition
 						}}
 					>
 						<Typography
 							variant='body1'
 							sx={{
-								transition: theme.transition.value,
-								color: theme.text.value
+								transition: theme.transition,
+								color: theme.text
 							}}
 						>
 							{e?.name}
@@ -109,8 +109,8 @@ function ViewWorkoutPage() {
 							sx={{
 								justifyContent: "space-between",
 								alignItems: "center",
-								transition: theme.transition.value,
-								color: theme.text.value
+								transition: theme.transition,
+								color: theme.text
 							}}
 						>
 							<Stack
@@ -166,8 +166,8 @@ function ViewWorkoutPage() {
 								sx={{
 									justifyContent: "space-between",
 									alignItems: "center",
-									transition: theme.transition.value,
-									color: theme.text.value
+									transition: theme.transition,
+									color: theme.text
 								}}
 							>
 								<Stack
@@ -210,10 +210,6 @@ function ViewWorkoutPage() {
 						))}
 					</Paper>
 				))}
-
-				{/* Exercise name */}
-
-				{/* Set #, Reps, lbs, rpe */}
 			</Stack>
 		</Stack>
 	);

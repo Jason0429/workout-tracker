@@ -23,13 +23,12 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import FirebaseObject from "../../firebase/firebase";
 import { themes } from "../../styles/theme";
-import { useHookstate } from "@hookstate/core";
-import { globalUser } from "../../states/user.state";
-import { globalTheme } from "../../states/theme.state";
+import { useUserState } from "../../states/UserState";
+import { useThemeState } from "../../states/ThemeState";
 
 function Navbar() {
-	const user = useHookstate(globalUser);
-	const theme = useHookstate(globalTheme);
+	const user = useUserState();
+	const theme = useThemeState();
 	const [anchorEl, setAnchorEl] = useState<any>(null);
 	const openMenu = Boolean(anchorEl);
 	/**
@@ -55,19 +54,6 @@ function Navbar() {
 		firebaseObj.logout();
 	}
 
-	/**
-	 * Handles theme toggling.
-	 */
-	function handleToggleTheme() {
-		if (theme.mode.value === "light") {
-			theme.set(themes.dark);
-			localStorage.setItem("themeMode", "dark");
-		} else {
-			theme.set(themes.light);
-			localStorage.setItem("themeMode", "light");
-		}
-	}
-
 	return (
 		<Paper
 			variant='outlined'
@@ -78,8 +64,8 @@ function Navbar() {
 				height: "50px",
 				width: "100%",
 				zIndex: 100,
-				background: theme.paperBackground.value,
-				transition: theme.transition.value
+				background: theme.paperBackground,
+				transition: theme.transition
 			}}
 		>
 			<Stack
@@ -100,15 +86,15 @@ function Navbar() {
 				>
 					<Typography
 						sx={{
-							color: theme.text.value,
-							transition: theme.transition.value
+							color: theme.text,
+							transition: theme.transition
 						}}
 					>
-						{user.value?.name ?? "Workout Tracker"}
+						{user?.name ?? "Workout Tracker"}
 					</Typography>
-					{user.value && (
+					{user.photoURL && (
 						<IconButton onClick={handleOpen} size='small' className='mui-fixed'>
-							<Avatar sx={{ width: 35, height: 35 }} src={user.value.photoURL!} />
+							<Avatar sx={{ width: 35, height: 35 }} src={user.photoURL} />
 						</IconButton>
 					)}
 					<Menu
@@ -119,15 +105,15 @@ function Navbar() {
 						transformOrigin={{ horizontal: "right", vertical: "top" }}
 						anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 					>
-						<MenuItem onClick={handleToggleTheme}>
+						<MenuItem onClick={theme.toggleTheme}>
 							<ListItemIcon>
-								{theme.mode.value === "light" ? (
+								{theme.mode === "light" ? (
 									<Brightness4Icon fontSize='small' />
 								) : (
 									<Brightness7Icon fontSize='small' />
 								)}
 							</ListItemIcon>
-							{theme.mode.value === "light" ? "View Dark Mode" : "View Light Mode"}
+							{theme.mode === "light" ? "View Dark Mode" : "View Light Mode"}
 						</MenuItem>
 						<MenuItem component={NavLink} to='/home'>
 							<ListItemIcon>
