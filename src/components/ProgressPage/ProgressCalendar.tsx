@@ -4,10 +4,22 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import "react-calendar/dist/Calendar.css";
 import { useThemeState } from "../../states/ThemeState";
 import { useProgressPageState } from "./ProgressPageState";
+import { useState } from "react";
 
 function ProgressCalendar() {
 	const theme = useThemeState();
-	const progressPageState = useProgressPageState();
+	const { ...state } = useProgressPageState();
+	const [selectedDate, setSelectedDate] = useState(new Date());
+
+	/**
+	 * Handles calendar date's on change event.
+	 * @param newDate new Date object.
+	 */
+	const handleOnChangeSelectedDate = (newDate: Date | null) => {
+		if (!newDate) return;
+		setSelectedDate(newDate);
+		state.handleOnDateChange(newDate);
+	};
 
 	return (
 		<Paper
@@ -22,11 +34,8 @@ function ProgressCalendar() {
 				<StaticDatePicker
 					orientation='portrait'
 					openTo='day'
-					// value={new Date()}
-					value={progressPageState.selectedDate}
-					onChange={(newDate: Date | null) =>
-						progressPageState.handleOnDateChange(newDate)
-					}
+					value={selectedDate}
+					onChange={(newDate: Date | null) => handleOnChangeSelectedDate(newDate)}
 					renderInput={(params) => <TextField {...params} />}
 				/>
 			</LocalizationProvider>

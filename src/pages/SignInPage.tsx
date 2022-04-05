@@ -11,12 +11,10 @@ function SignInPage() {
 	/**
 	 * Handles sign in with google.
 	 */
-	function handleSignInUser() {
+	const handleSignInUser = () => {
 		const firebaseObj = new FirebaseObject();
 		firebaseObj.signInWithGoogle();
-
-		// onAuthStateChanged handles actions after user is logged in.
-	}
+	};
 
 	return (
 		<Stack

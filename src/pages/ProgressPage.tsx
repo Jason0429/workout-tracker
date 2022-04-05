@@ -10,13 +10,13 @@ import { useEffect, useState } from "react";
 import { useProgressPageState } from "../components/ProgressPage/ProgressPageState";
 
 function ProgressPage() {
-	const progressPageState = useProgressPageState();
+	const { ...state } = useProgressPageState();
 	const [loading, setLoading] = useState(true);
 	const [width] = useWindowSize();
 
 	useEffect(() => {
 		if (loading) {
-			progressPageState.init();
+			state.init();
 			setLoading(false);
 		}
 	}, []);
@@ -24,20 +24,18 @@ function ProgressPage() {
 	return (
 		<>
 			{/* Delete Workout Confirmation Dialog */}
-			{progressPageState.workoutToDelete && (
+			{state.workoutToDelete && (
 				<ConfirmationDialog
-					open={progressPageState.openConfirmationDialog}
-					onClose={progressPageState.handleCloseConfirmationDialog}
+					open={state.openConfirmationDialog}
+					onClose={state.handleCloseConfirmationDialog}
 					title='Delete Workout?'
 					message={
 						<>
 							Are you sure you want to delete{" "}
-							<span style={{ fontWeight: "bold" }}>
-								{progressPageState.workoutToDelete.name}
-							</span>
+							<span style={{ fontWeight: "bold" }}>{state.workoutToDelete.name}</span>
 						</>
 					}
-					yesFunction={progressPageState.handleDeleteWorkoutAfterConfirmation}
+					yesFunction={state.handleDeleteWorkoutAfterConfirmation}
 				/>
 			)}
 

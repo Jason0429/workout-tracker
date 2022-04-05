@@ -54,18 +54,6 @@ function Navbar() {
 		firebaseObj.logout();
 	}
 
-	/**
-	 * Handles theme toggling.
-	 */
-	function handleToggleTheme() {
-		theme.toggleTheme();
-		if (theme.mode === "light") {
-			localStorage.setItem("themeMode", "dark");
-		} else {
-			localStorage.setItem("themeMode", "light");
-		}
-	}
-
 	return (
 		<Paper
 			variant='outlined'
@@ -117,7 +105,7 @@ function Navbar() {
 						transformOrigin={{ horizontal: "right", vertical: "top" }}
 						anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 					>
-						<MenuItem onClick={handleToggleTheme}>
+						<MenuItem onClick={theme.toggleTheme}>
 							<ListItemIcon>
 								{theme.mode === "light" ? (
 									<Brightness4Icon fontSize='small' />

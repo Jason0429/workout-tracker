@@ -1,32 +1,35 @@
 import { createState, useHookstate } from "@hookstate/core";
+import { UserType } from "../../firebase/User";
 import { WorkoutType, deleteWorkout } from "../../firebase/Workout";
 import { useSnackbarState } from "../../states/SnackbarState";
+import { useUserState } from "../../states/UserState";
 
 type ProgressPageState = {
-	selectedDate: Date | null;
 	openConfirmationDialog: boolean;
 	workoutToDelete: WorkoutType | null;
+	workoutsOnThisDay: WorkoutType[];
 };
 
 const progressPageState = createState({
-	selectedDate: null,
 	openConfirmationDialog: false,
-	workoutToDelete: null
+	workoutToDelete: null,
+	workoutsOnThisDay: []
 } as ProgressPageState);
 
 export const useProgressPageState = () => {
+	const user = useUserState() as UserType;
 	const state = useHookstate(progressPageState);
 	const snackbarState = useSnackbarState();
 
 	return {
-		get selectedDate() {
-			return state.selectedDate.get();
-		},
 		get openConfirmationDialog() {
 			return state.openConfirmationDialog.get();
 		},
 		get workoutToDelete() {
 			return state.workoutToDelete.get();
+		},
+		get workoutsOnThisDay() {
+			return state.workoutsOnThisDay.get();
 		},
 
 		/**
@@ -34,10 +37,21 @@ export const useProgressPageState = () => {
 		 */
 		init() {
 			state.set({
-				selectedDate: new Date(),
 				openConfirmationDialog: false,
-				workoutToDelete: null
+				workoutToDelete: null,
+				workoutsOnThisDay: this.getWorkoutsOnDate(new Date())
 			});
+		},
+
+		/**
+		 * Returns list of workouts that user logged on the specified date.
+		 * @param date Date object.
+		 */
+		getWorkoutsOnDate(date: Date) {
+			return user.workouts.filter(
+				(workout: WorkoutType) =>
+					new Date(workout.dateCreated).toDateString() === date.toDateString()
+			);
 		},
 
 		/**
@@ -58,12 +72,10 @@ export const useProgressPageState = () => {
 		 * Handles action when user changes date on Progress calendar.
 		 * @param newDate the new date selected.
 		 */
-		handleOnDateChange(newDate: Date | null) {
-			if (!newDate) return;
-
+		handleOnDateChange(newDate: Date) {
 			state.set((prev) => ({
 				...prev,
-				selectedDate: newDate
+				workoutsOnThisDay: this.getWorkoutsOnDate(newDate)
 			}));
 		},
 

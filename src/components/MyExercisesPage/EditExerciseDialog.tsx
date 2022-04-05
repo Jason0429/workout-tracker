@@ -1,5 +1,5 @@
 // React
-import { useState, useEffect } from 'react';
+import { useState } from "react";
 
 // Material
 import {
@@ -10,28 +10,32 @@ import {
 	TextField,
 	Button,
 	Stack
-} from '@mui/material';
-import Chip from '@mui/material/Chip';
-import { useMyExercisesPageState } from './MyExercisesPageState';
+} from "@mui/material";
+import Chip from "@mui/material/Chip";
+import { useMyExercisesPageState } from "./MyExercisesPageState";
 
 function EditExerciseDialog() {
-	const myExercisesPageState = useMyExercisesPageState();
+	const { ...state } = useMyExercisesPageState();
+	const [category, setCategory] = useState("");
 
 	const handleUpdateExercise = async () => {
-		await myExercisesPageState.handleUpdateExercise();
-		myExercisesPageState.handleCloseEditExerciseDialog();
+		await state.handleUpdateExercise();
+		state.handleCloseEditExerciseDialog();
+	};
+
+	const handleAddCategory = () => {
+		state.handleAddCategoryToEditExercise(category);
+		setCategory("");
 	};
 
 	return (
 		<Dialog
-			open={myExercisesPageState.openEditExerciseDialog}
-			onClose={myExercisesPageState.handleCloseEditExerciseDialog}
-			fullWidth>
+			open={state.openEditExerciseDialog}
+			onClose={state.handleCloseEditExerciseDialog}
+			fullWidth
+		>
 			<DialogTitle>
-				Edit{' '}
-				<span style={{ color: '#0096FF' }}>
-					{myExercisesPageState.selectedExerciseToEdit?.name}
-				</span>
+				Edit <span style={{ color: "#0096FF" }}>{state.selectedExerciseToEdit?.name}</span>
 			</DialogTitle>
 			<DialogContent>
 				<Stack direction='column' spacing={3}>
@@ -40,58 +44,35 @@ function EditExerciseDialog() {
 						margin='normal'
 						label='Exercise Name'
 						variant='outlined'
-						value={
-							myExercisesPageState.selectedExerciseToEdit?.name
-						}
-						onChange={(e) =>
-							myExercisesPageState.handleEditExerciseName(
-								e.target.value
-							)
-						}
+						value={state.selectedExerciseToEdit?.name}
+						onChange={(e) => state.handleEditExerciseName(e.target.value)}
 						fullWidth
 					/>
 					<TextField
 						label='New Category'
-						value={myExercisesPageState.category}
-						onChange={(e) =>
-							myExercisesPageState.handleSetCategory(
-								e.target.value
-							)
-						}
+						// value={state.category}
+						value={category}
+						onChange={(e) => setCategory(e.target.value)}
+						// onChange={(e) => state.handleSetCategory(e.target.value)}
 						sx={{
-							width: '200px'
+							width: "200px"
 						}}
 						variant='outlined'
-						onKeyPress={(e) =>
-							e.key === 'Enter'
-								? myExercisesPageState.handleAddCategory()
-								: null
-						}
+						onKeyPress={(e) => (e.key === "Enter" ? handleAddCategory() : null)}
 					/>
 					<Stack direction='row' gap={2} flexWrap='wrap'>
-						{myExercisesPageState.selectedExerciseToEdit?.categories.map(
-							(c, idx) => (
-								<Chip
-									onDelete={() =>
-										myExercisesPageState.handleDeleteCategory(
-											idx
-										)
-									}
-									label={c}
-									key={idx}
-								/>
-							)
-						)}
+						{state.selectedExerciseToEdit?.categories.map((c, idx) => (
+							<Chip
+								onDelete={() => state.handleDeleteCategory(idx)}
+								label={c}
+								key={idx}
+							/>
+						))}
 					</Stack>
 				</Stack>
 			</DialogContent>
 			<DialogActions>
-				<Button
-					onClick={
-						myExercisesPageState.handleCloseEditExerciseDialog
-					}>
-					Cancel
-				</Button>
+				<Button onClick={state.handleCloseEditExerciseDialog}>Cancel</Button>
 				<Button onClick={handleUpdateExercise} variant='outlined'>
 					Save
 				</Button>

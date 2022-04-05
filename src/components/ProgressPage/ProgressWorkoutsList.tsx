@@ -10,39 +10,14 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useProgressPageState } from "./ProgressPageState";
-import { UserType } from "../../firebase/User";
 import { WorkoutType } from "../../firebase/Workout";
 import { useThemeState } from "../../states/ThemeState";
-import { useUserState } from "../../states/UserState";
 
 function ProgressWorkoutsList() {
-	const progressPageState = useProgressPageState();
-	const user = useUserState() as UserType;
+	const { ...state } = useProgressPageState();
 	const theme = useThemeState();
 	const navigate = useNavigate();
-	const [workoutsOnThisDay, setWorkoutsOnThisDay] = useState<WorkoutType[]>(
-		getWorkoutsOnThisDay()
-	);
-
-	useEffect(() => {
-		setWorkoutsOnThisDay(getWorkoutsOnThisDay());
-	}, [progressPageState.selectedDate]);
-
-	/**
-	 * Returns array of workouts that user logged on specified date.
-	 */
-	function getWorkoutsOnThisDay() {
-		if (progressPageState.selectedDate) {
-			const selectedDate = progressPageState.selectedDate;
-			return user.workouts.filter(
-				(workout: WorkoutType) =>
-					new Date(workout.dateCreated).toDateString() === selectedDate.toDateString()
-			);
-		}
-		return [];
-	}
 
 	return (
 		<Paper
@@ -57,13 +32,15 @@ function ProgressWorkoutsList() {
 			<Typography
 				align='center'
 				p={1}
-				color={workoutsOnThisDay.length > 0 ? "#00bfff" : "#ff726f"}
+				color={state.workoutsOnThisDay.length > 0 ? "#00bfff" : "#ff726f"}
 			>
-				{workoutsOnThisDay.length > 0 ? "Workouts On This Day:" : "No Workouts On This Day"}
+				{state.workoutsOnThisDay.length > 0
+					? "Workouts On This Day:"
+					: "No Workouts On This Day"}
 			</Typography>
 			<Divider />
 			<List sx={{ width: "350px", padding: "0" }}>
-				{workoutsOnThisDay.map((workout: WorkoutType, idx: number) => (
+				{state.workoutsOnThisDay.map((workout: WorkoutType, idx: number) => (
 					<ListItem
 						divider
 						key={idx}
@@ -72,9 +49,7 @@ function ProgressWorkoutsList() {
 								edge='end'
 								aria-label='delete'
 								// To delete workout
-								onClick={() =>
-									progressPageState.handleDeleteWorkoutBeforeConfirmation(workout)
-								}
+								onClick={() => state.handleDeleteWorkoutBeforeConfirmation(workout)}
 							>
 								<DeleteIcon
 									sx={{

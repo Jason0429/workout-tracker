@@ -53,14 +53,14 @@ function TemplateStart({ template }: Props) {
 	 * @param template template to be deleted.
 	 */
 	const handleDeleteTemplate = async (template: TemplateType) => {
+		const t = { ...template };
 		try {
 			await deleteTemplate(template.id);
-			snackbar.handleOpenSnackbar(
-				`Template: ${template.name} has been successfully deleted.`
-			);
+			snackbar.handleOpenSnackbar(`Template: ${t.name} has been successfully deleted.`);
 		} catch (e) {
+			alert("Something went wrong.");
 			snackbar.handleOpenSnackbar(
-				`Something went wrong. Template: ${template.name} could not be deleted.`
+				`Something went wrong. Template: ${t.name} could not be deleted.`
 			);
 		}
 	};

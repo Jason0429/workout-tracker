@@ -1,4 +1,3 @@
-import { ThemeType } from "./../models";
 import { makeStyles } from "@mui/styles";
 
 export const lightBlue = "#00bfff30";
@@ -10,7 +9,7 @@ export const darkRed = "#ff726f";
 export const lightGray = "#cecece";
 export const darkGray = "#00000090";
 
-export const useStyles = makeStyles((theme: ThemeType) => ({
+export const useStyles = makeStyles({
 	blueBtn: {
 		fontWeight: "bold",
 		fontSize: "1em",
@@ -206,4 +205,4 @@ export const useStyles = makeStyles((theme: ThemeType) => ({
 		height: "100%",
 		width: "100%"
 	}
-}));
+});

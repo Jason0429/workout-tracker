@@ -4,7 +4,7 @@ import { useStyles } from "../../styles/classes";
 import { useMyExercisesPageState } from "./MyExercisesPageState";
 
 function Controlbar() {
-	const myExercisesPageState = useMyExercisesPageState();
+	const { ...state } = useMyExercisesPageState();
 	const theme = useThemeState();
 	const classes = useStyles();
 
@@ -22,10 +22,7 @@ function Controlbar() {
 			}}
 		>
 			<Stack direction='column' alignItems='center' justifyContent='center'>
-				<button
-					className={classes.blueBtn}
-					onClick={myExercisesPageState.handleOpenAddExerciseDialog}
-				>
+				<button className={classes.blueBtn} onClick={state.handleOpenAddExerciseDialog}>
 					+ Add New Exercise
 				</button>
 			</Stack>

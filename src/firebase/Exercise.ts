@@ -11,9 +11,9 @@ export type ExerciseType = {
 	sets: SetType[];
 };
 
-export const Exercise = (name: string, categories: string[]): ExerciseType => ({
-	name,
-	categories,
+export const Exercise = (name?: string, categories?: string[]): ExerciseType => ({
+	name: name ?? "",
+	categories: categories ?? [],
 	id: uuidv4(),
 	sets: []
 });

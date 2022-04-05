@@ -1,36 +1,36 @@
 // React
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Firebase
-import FirebaseObject from './firebase/firebase';
-import { User } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import FirebaseObject from "./firebase/firebase";
+import { User } from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
 
 // Material
-import { IconButton, Snackbar } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { IconButton, Snackbar } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Styles
-import { useStyles } from './styles/classes';
+import { useStyles } from "./styles/classes";
 
 // Components
-import SignInPage from './pages/SignInPage';
-import HomePage from './pages/HomePage';
-import Navbar from './components/Global/Navbar';
-import ProgressPage from './pages/ProgressPage';
-import MyExercisesPage from './pages/MyExercisesPage';
-import LogWorkoutPage from './pages/LogWorkoutPage';
-import TemplatePage from './pages/TemplatePage';
+import SignInPage from "./pages/SignInPage";
+import HomePage from "./pages/HomePage";
+import Navbar from "./components/Global/Navbar";
+import ProgressPage from "./pages/ProgressPage";
+import MyExercisesPage from "./pages/MyExercisesPage";
+import LogWorkoutPage from "./pages/LogWorkoutPage";
+import TemplatePage from "./pages/TemplatePage";
 
-import ViewWorkoutPage from './pages/ViewWorkoutPage';
-import ProtectedRoute from './components/Global/ProtectedRoute';
-import LoadingPage from './pages/LoadingPage';
-import { userExistsInDB, addNewUser, getUser, UserType } from './firebase/User';
-import { useSnackbarState } from './states/SnackbarState';
-import { useThemeState } from './states/ThemeState';
-import { useUserState } from './states/UserState';
+import ViewWorkoutPage from "./pages/ViewWorkoutPage";
+import ProtectedRoute from "./components/Global/ProtectedRoute";
+import LoadingPage from "./pages/LoadingPage";
+import { userExistsInDB, addNewUser, getUser, UserType } from "./firebase/User";
+import { useSnackbarState } from "./states/SnackbarState";
+import { useThemeState } from "./states/ThemeState";
+import { useUserState } from "./states/UserState";
 
 export default function App() {
 	const user = useUserState();
@@ -44,23 +44,22 @@ export default function App() {
 	 * Handles signing in and out of Google.
 	 */
 	useEffect(() => {
-		const unsub = fb.auth.onAuthStateChanged(
-			async (userObj: User | null) => {
-				// return new FirebaseObject().logout()
-				if (!userObj) {
-					user.set(null);
-					console.log('Signing out.');
-				} else {
-					if (!(await userExistsInDB(userObj.uid))) {
-						console.log('Creating a new user.');
-						addNewUser();
-					}
-					console.log('Signing in.');
-					user.set(await getUser());
+		const unsub = fb.auth.onAuthStateChanged(async (userObj: User | null) => {
+			// return new FirebaseObject().logout()
+			if (!userObj) {
+				user.set(null);
+				console.log("Signing out.");
+				console.log(user);
+			} else {
+				if (!(await userExistsInDB(userObj.uid))) {
+					console.log("Creating a new user.");
+					addNewUser();
 				}
-				if (loading) setLoading(false);
+				console.log("Signing in.");
+				user.set(await getUser());
 			}
-		);
+			if (loading) setLoading(false);
+		});
 
 		return () => unsub();
 	}, []); // DO NOT REMOVE []
@@ -71,18 +70,18 @@ export default function App() {
 	useEffect(() => {
 		if (fb.auth.currentUser) {
 			// If user is logged in.
-			const userDoc = doc(fb.db, 'users', fb.auth.currentUser.uid);
+			const userDoc = doc(fb.db, "users", fb.auth.currentUser.uid);
 			const unsub = onSnapshot(userDoc, (doc) => {
 				const userData = doc.data() as UserType;
 				user.set(userData);
-				console.log('(user) onSnapshot: ', userData);
+				console.log("(user) onSnapshot: ", userData);
 			});
 			return () => unsub();
 		}
 	}, [loading]); // DO NOT REMOVE loading dependency
 
 	if (loading) return <LoadingPage />;
-	if (!user) return <SignInPage />;
+	// if (!user) return <SignInPage />;
 
 	return (
 		<BrowserRouter basename='/'>
@@ -91,67 +90,48 @@ export default function App() {
 				style={{
 					background: theme.background,
 					transition: theme.transition
-				}}>
+				}}
+			>
 				<Navbar />
 				<Routes>
 					{/* View Workout Page (Uneditable) */}
 					<Route
 						path='/viewWorkout/:id'
-						element={
-							<ProtectedRoute element={<ViewWorkoutPage />} />
-						}
+						element={<ProtectedRoute element={<ViewWorkoutPage />} />}
 					/>
 
 					{/* Create Template Page */}
 					<Route
 						path='/createTemplate'
 						element={
-							<ProtectedRoute
-								element={
-									<TemplatePage mode='create-template' />
-								}
-							/>
+							<ProtectedRoute element={<TemplatePage mode='create-template' />} />
 						}
 					/>
 
 					{/* Edit Template Page */}
 					<Route
 						path='/editTemplate/:id'
-						element={
-							<ProtectedRoute
-								element={<TemplatePage mode='edit-template' />}
-							/>
-						}
+						element={<ProtectedRoute element={<TemplatePage mode='edit-template' />} />}
 					/>
 
 					{/* Create Workout to Log */}
 					<Route
 						path='/createWorkout'
 						element={
-							<ProtectedRoute
-								element={<TemplatePage mode='create-workout' />}
-							/>
+							<ProtectedRoute element={<TemplatePage mode='create-workout' />} />
 						}
 					/>
 
 					{/* Edit Logged Workout */}
 					<Route
 						path='/editWorkout/:id'
-						element={
-							<ProtectedRoute
-								element={<TemplatePage mode='edit-workout' />}
-							/>
-						}
+						element={<ProtectedRoute element={<TemplatePage mode='edit-workout' />} />}
 					/>
 
 					{/* Log Workout */}
 					<Route
 						path='/logWorkout/:id'
-						element={
-							<ProtectedRoute
-								element={<TemplatePage mode='log-workout' />}
-							/>
-						}
+						element={<ProtectedRoute element={<TemplatePage mode='log-workout' />} />}
 					/>
 
 					{/* View Progress Page*/}
@@ -163,43 +143,25 @@ export default function App() {
 					{/* My Exercises Page */}
 					<Route
 						path='/exercises'
-						element={
-							<ProtectedRoute element={<MyExercisesPage />} />
-						}
+						element={<ProtectedRoute element={<MyExercisesPage />} />}
 					/>
 
 					{/* Log Workout Page*/}
-					<Route
-						path='/log'
-						element={
-							<ProtectedRoute element={<LogWorkoutPage />} />
-						}
-					/>
+					<Route path='/log' element={<ProtectedRoute element={<LogWorkoutPage />} />} />
 
 					{/* Home page */}
-					<Route
-						path='/home'
-						element={<ProtectedRoute element={<HomePage />} />}
-					/>
+					<Route path='/home' element={<ProtectedRoute element={<HomePage />} />} />
 
 					{/* If user's logged in, redirect to HomePage, else sign in */}
 					<Route
 						path='/signin'
-						element={
-							user ? <Navigate to={'/home'} /> : <SignInPage />
-						}
+						element={user.id ? <Navigate to={"/home"} /> : <SignInPage />}
 					/>
 
 					{/* Any other path */}
 					<Route
 						path='/*'
-						element={
-							user ? (
-								<Navigate to={'/home'} />
-							) : (
-								<Navigate to={'/signin'} />
-							)
-						}
+						element={user.id ? <Navigate to={"/home"} /> : <Navigate to={"/signin"} />}
 					/>
 				</Routes>
 
@@ -214,7 +176,8 @@ export default function App() {
 								size='small'
 								aria-label='close'
 								color='inherit'
-								onClick={snackbar.handleCloseSnackbar}>
+								onClick={snackbar.handleCloseSnackbar}
+							>
 								<CloseIcon fontSize='small' />
 							</IconButton>
 						}

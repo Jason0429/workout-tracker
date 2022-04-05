@@ -1,10 +1,6 @@
-import { createState, useHookstate } from '@hookstate/core';
-import {
-	deleteExercise,
-	ExerciseType,
-	updateExercise
-} from '../../firebase/Exercise';
-import { useSnackbarState } from '../../states/SnackbarState';
+import { createState, useHookstate } from "@hookstate/core";
+import { deleteExercise, Exercise, ExerciseType, updateExercise } from "../../firebase/Exercise";
+import { useSnackbarState } from "../../states/SnackbarState";
 
 export type MyExercisesPageState = {
 	search: string;
@@ -13,19 +9,15 @@ export type MyExercisesPageState = {
 	openConfirmationDialog: boolean;
 	selectedExerciseToEdit: ExerciseType | null;
 	selectedExerciseToDelete: ExerciseType | null;
-	exerciseToAdd: ExerciseType | null;
-	category: string;
 };
 
 const myExercisesPageState = createState({
-	search: '',
+	search: "",
 	openAddExerciseDialog: false,
 	openEditExerciseDialog: false,
 	openConfirmationDialog: false,
 	selectedExerciseToEdit: null,
-	selectedExerciseToDelete: null,
-	exerciseToAdd: null,
-	category: ''
+	selectedExerciseToDelete: null
 } as MyExercisesPageState);
 
 export const useMyExercisesPageState = () => {
@@ -54,26 +46,18 @@ export const useMyExercisesPageState = () => {
 		get selectedExerciseToDelete() {
 			return state.selectedExerciseToDelete.get();
 		},
-		get exerciseToAdd() {
-			return state.exerciseToAdd.get();
-		},
-		get category() {
-			return state.category.get();
-		},
 
 		/**
 		 * Initializes state.
 		 */
 		init() {
 			state.set({
-				search: '',
+				search: "",
 				openAddExerciseDialog: false,
 				openEditExerciseDialog: false,
 				openConfirmationDialog: false,
 				selectedExerciseToEdit: null,
-				selectedExerciseToDelete: null,
-				exerciseToAdd: null,
-				category: ''
+				selectedExerciseToDelete: null
 			});
 		},
 
@@ -89,12 +73,14 @@ export const useMyExercisesPageState = () => {
 		 */
 		handleOpenAddExerciseDialog() {
 			state.openAddExerciseDialog.set(true);
+			// state.exerciseToAdd.set(Exercise());
 		},
 
 		/**
 		 * Handles closing add exercise dialog.
 		 */
 		handleCloseAddExerciseDialog() {
+			// state.exerciseToAdd.set(Exercise());/
 			state.openAddExerciseDialog.set(false);
 		},
 
@@ -181,22 +167,22 @@ export const useMyExercisesPageState = () => {
 			}
 		},
 
-		handleSetCategory(category: string) {
-			state.category.set(category);
-		},
+		// handleSetCategory(category: string) {
+		// 	state.category.set(category);
+		// },
 
-		handleAddCategory() {
-			if (state.category.get() === '') return;
+		/**
+		 * Handles adding category to selected exercise to edit.
+		 * @param category category to be added.
+		 */
+		handleAddCategoryToEditExercise(category: string) {
+			if (category === "") return;
 
 			if (state.selectedExerciseToEdit.get()) {
 				state.selectedExerciseToEdit.set((prev) => ({
 					...(prev as ExerciseType),
-					categories: [
-						...(prev as ExerciseType).categories,
-						state.category.get()
-					]
+					categories: [...(prev as ExerciseType).categories, category]
 				}));
-				state.category.set('');
 			}
 		},
 
@@ -221,8 +207,7 @@ export const useMyExercisesPageState = () => {
 		 */
 		async handleUpdateExercise() {
 			if (state.selectedExerciseToEdit.get()) {
-				const exercise =
-					state.selectedExerciseToEdit.get() as ExerciseType;
+				const exercise = state.selectedExerciseToEdit.get() as ExerciseType;
 				console.log(exercise);
 				try {
 					await updateExercise(exercise);

@@ -12,7 +12,6 @@ function LogWorkoutPage() {
 	const navigate = useNavigate();
 
 	return (
-		// <div className={classes.mainContainer}>
 		<Stack
 			direction='column'
 			spacing={3}
@@ -20,7 +19,7 @@ function LogWorkoutPage() {
 				width: "100%",
 				height: "100vh",
 				maxWidth: "800px",
-				padding: "0 20px",
+				padding: "20px",
 				alignItems: `${width > 400 ? "" : "center"}`
 			}}
 		>
@@ -42,7 +41,6 @@ function LogWorkoutPage() {
 				Start Own Workout
 			</div>
 		</Stack>
-		// </div>
 	);
 }
 

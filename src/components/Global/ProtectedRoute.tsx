@@ -8,7 +8,7 @@ interface Props {
 function ProtectedRoute({ element }: Props) {
 	const user = useUserState();
 
-	return user ? element : <Navigate to={"/signin"} />;
+	return user.id ? element : <Navigate to='/signin' />;
 }
 
 export default ProtectedRoute;

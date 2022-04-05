@@ -57,7 +57,11 @@ export const useThemeState = () => {
 		 * Handles toggling theme.
 		 */
 		toggleTheme() {
-			state.set((prev) => (prev.mode === "light" ? themes.dark : themes.light));
+			state.set((prev) => {
+				const newMode = prev.mode === "light" ? "dark" : "light";
+				localStorage.setItem("themeMode", newMode);
+				return themes[newMode];
+			});
 		}
 	};
 };
